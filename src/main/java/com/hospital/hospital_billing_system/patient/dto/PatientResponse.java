@@ -2,10 +2,12 @@ package com.hospital.hospital_billing_system.patient.dto;
 
 import com.hospital.hospital_billing_system.common.enums.Gender;
 import com.hospital.hospital_billing_system.common.enums.PatientStatus;
+import lombok.Builder;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+@Builder
 public class PatientResponse {
 
     // patient id
