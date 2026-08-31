@@ -1,5 +1,6 @@
 package com.hospital.hospital_billing_system.patient.service.impl;
 
+import com.hospital.hospital_billing_system.common.exception.ResourceNotFoundException;
 import com.hospital.hospital_billing_system.patient.dto.PatientRequest;
 import com.hospital.hospital_billing_system.patient.dto.PatientResponse;
 import com.hospital.hospital_billing_system.patient.entity.Patient;
@@ -54,8 +55,9 @@ public class PatientServiceImpl implements PatientService {
         // find patient by id
         Patient patient = patientRepository.findById(patientId)
                 .orElseThrow(() ->
-                        new RuntimeException("Patient not found with id: " + patientId)
-                );
+                        new ResourceNotFoundException(
+                                "Patient not found with id: " + patientId
+                        )                );
 
         return mapToResponse(patient);
     }
@@ -79,8 +81,9 @@ public class PatientServiceImpl implements PatientService {
         // find existing patient
         Patient patient = patientRepository.findById(patientId)
                 .orElseThrow(() ->
-                        new RuntimeException("Patient not found with id: " + patientId)
-                );
+                        new ResourceNotFoundException(
+                                "Patient not found with id: " + patientId
+                        )                );
 
         // update patient details
         patient.setFirstName(request.getFirstName());
@@ -106,7 +109,7 @@ public class PatientServiceImpl implements PatientService {
 
         // check patient exists
         if (!patientRepository.existsById(patientId)) {
-            throw new RuntimeException(
+            throw new ResourceNotFoundException(
                     "Patient not found with id: " + patientId
             );
         }
