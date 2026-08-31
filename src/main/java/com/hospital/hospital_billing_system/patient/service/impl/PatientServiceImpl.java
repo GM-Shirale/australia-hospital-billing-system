@@ -65,7 +65,6 @@ public class PatientServiceImpl implements PatientService {
         // save patient
         Patient savedPatient = patientRepository.save(patient);
 
-        // convert entity to response
         return mapToResponse(savedPatient);
     }
 
@@ -76,8 +75,9 @@ public class PatientServiceImpl implements PatientService {
         Patient patient = patientRepository.findById(patientId)
                 .orElseThrow(() ->
                         new ResourceNotFoundException(
-                                "Patient not found with id: " + patientId  )
-                                       );
+                                "Patient not found with id: " + patientId
+                        )
+                );
 
         return mapToResponse(patient);
     }
@@ -103,7 +103,8 @@ public class PatientServiceImpl implements PatientService {
                 .orElseThrow(() ->
                         new ResourceNotFoundException(
                                 "Patient not found with id: " + patientId
-                        )                );
+                        )
+                );
 
         // update patient details
         patient.setFirstName(request.getFirstName());
@@ -146,28 +147,26 @@ public class PatientServiceImpl implements PatientService {
         return String.format("PAT-%05d", number);
     }
 
-    // convert patient entity to response DTO
+    // convert entity to response
     private PatientResponse mapToResponse(Patient patient) {
 
-        PatientResponse response = new PatientResponse();
-
-        response.setPatientId(patient.getPatientId());
-        response.setPatientNumber(patient.getPatientNumber());
-        response.setFirstName(patient.getFirstName());
-        response.setMiddleName(patient.getMiddleName());
-        response.setLastName(patient.getLastName());
-        response.setDateOfBirth(patient.getDateOfBirth());
-        response.setGender(patient.getGender());
-        response.setMedicareNumber(patient.getMedicareNumber());
-        response.setMedicareIrn(patient.getMedicareIrn());
-        response.setEmail(patient.getEmail());
-        response.setPhone(patient.getPhone());
-        response.setEmergencyContactName(patient.getEmergencyContactName());
-        response.setEmergencyContactPhone(patient.getEmergencyContactPhone());
-        response.setStatus(patient.getStatus());
-        response.setCreatedAt(patient.getCreatedAt());
-        response.setUpdatedAt(patient.getUpdatedAt());
-
-        return response;
+        return PatientResponse.builder()
+                .patientId(patient.getPatientId())
+                .patientNumber(patient.getPatientNumber())
+                .firstName(patient.getFirstName())
+                .middleName(patient.getMiddleName())
+                .lastName(patient.getLastName())
+                .dateOfBirth(patient.getDateOfBirth())
+                .gender(patient.getGender())
+                .medicareNumber(patient.getMedicareNumber())
+                .medicareIrn(patient.getMedicareIrn())
+                .email(patient.getEmail())
+                .phone(patient.getPhone())
+                .emergencyContactName(patient.getEmergencyContactName())
+                .emergencyContactPhone(patient.getEmergencyContactPhone())
+                .status(patient.getStatus())
+                .createdAt(patient.getCreatedAt())
+                .updatedAt(patient.getUpdatedAt())
+                .build();
     }
 }
