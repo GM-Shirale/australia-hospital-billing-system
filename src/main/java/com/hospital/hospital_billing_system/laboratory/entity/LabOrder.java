@@ -5,6 +5,7 @@ package com.hospital.hospital_billing_system.laboratary.entity;
 import com.hospital.hospital_billing_system.laboratary.entity.enums.LabOrderPriority;
 import com.hospital.hospital_billing_system.laboratary.entity.enums.LabOrderStatus;
 
+import com.hospital.hospital_billing_system.patient.entity.Patient;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -26,8 +27,9 @@ public class LabOrder {
     @Column(name = "order_number", nullable = false, unique = true, length = 50)
     private String orderNumber;
 
-    @Column(name = "patient_id", nullable = false)
-    private Long patientId;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "patient_id", nullable = false)
+    private Patient patient;
 
     @Column(name = "doctor_id", nullable = false)
     private Long doctorId;

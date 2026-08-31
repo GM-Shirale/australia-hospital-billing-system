@@ -1,4 +1,4 @@
-package com.hospital.hospital_billing_system.laboratary.entity.enums;
+package com.hospital.hospital_billing_system.laboratory.entity.enums;
 
 public enum BillingType {
     MEDICARE,

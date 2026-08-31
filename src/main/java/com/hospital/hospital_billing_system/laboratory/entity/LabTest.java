@@ -13,19 +13,27 @@ import java.time.LocalDateTime;
 @Data 
 @NoArgsConstructor 
 @AllArgsConstructor
-@Builder public class LabTest { 
-	@Id @GeneratedValue(strategy = GenerationType.IDENTITY) 
+@Builder
+public class LabTest {
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
+
 	@Column(name = "test_code", nullable = false, unique = true, length = 50) 
 	private String testCode;
+
 	@Column(name = "test_name", nullable = false, length = 150) 
 	private String testName;
+
 	@Column(name = "category", nullable = false, length = 100) 
-	private String category; 
+	private String category;
+
 	@Column(name = "sample_type", nullable = false, length = 100) 
-	private String sampleType; 
+	private String sampleType;
+
 	@Column(name = "description", length = 500) 
-	private String description; 
+	private String description;
+
 	@Column(name = "price", nullable = false, precision = 10, scale = 2) 
 	private BigDecimal price;
 	@Column(name = "turnaround_time")
