@@ -1,5 +1,6 @@
 package com.hospital.hospital_billing_system.patient.service.impl;
 
+import com.hospital.hospital_billing_system.common.exception.DuplicateResourceException;
 import com.hospital.hospital_billing_system.common.exception.ResourceNotFoundException;
 import com.hospital.hospital_billing_system.patient.dto.PatientRequest;
 import com.hospital.hospital_billing_system.patient.dto.PatientResponse;
@@ -23,24 +24,43 @@ public class PatientServiceImpl implements PatientService {
     @Override
     public PatientResponse createPatient(PatientRequest request) {
 
-        // create patient entity
-        Patient patient = new Patient();
+        // check duplicate email
+        if (patientRepository.existsByEmail(request.getEmail())) {
+            throw new DuplicateResourceException(
+                    "Patient with email already exists: " + request.getEmail()
+            );
+        }
 
-        // set request data into entity
-        patient.setFirstName(request.getFirstName());
-        patient.setMiddleName(request.getMiddleName());
-        patient.setLastName(request.getLastName());
-        patient.setDateOfBirth(request.getDateOfBirth());
-        patient.setGender(request.getGender());
-        patient.setMedicareNumber(request.getMedicareNumber());
-        patient.setMedicareIrn(request.getMedicareIrn());
-        patient.setEmail(request.getEmail());
-        patient.setPhone(request.getPhone());
-        patient.setEmergencyContactName(request.getEmergencyContactName());
-        patient.setEmergencyContactPhone(request.getEmergencyContactPhone());
+        // check duplicate phone
+        if (patientRepository.existsByPhone(request.getPhone())) {
+            throw new DuplicateResourceException(
+                    "Patient with phone number already exists: " + request.getPhone()
+            );
+        }
 
-        // generate patient number
-        patient.setPatientNumber(generatePatientNumber());
+        // check duplicate Medicare number
+        if (patientRepository.existsByMedicareNumber(request.getMedicareNumber())) {
+            throw new DuplicateResourceException(
+                    "Patient with Medicare number already exists: "
+                            + request.getMedicareNumber()
+            );
+        }
+
+        // create patient using builder
+        Patient patient = Patient.builder()
+                .patientNumber(generatePatientNumber())
+                .firstName(request.getFirstName())
+                .middleName(request.getMiddleName())
+                .lastName(request.getLastName())
+                .dateOfBirth(request.getDateOfBirth())
+                .gender(request.getGender())
+                .medicareNumber(request.getMedicareNumber())
+                .medicareIrn(request.getMedicareIrn())
+                .email(request.getEmail())
+                .phone(request.getPhone())
+                .emergencyContactName(request.getEmergencyContactName())
+                .emergencyContactPhone(request.getEmergencyContactPhone())
+                .build();
 
         // save patient
         Patient savedPatient = patientRepository.save(patient);
@@ -56,8 +76,8 @@ public class PatientServiceImpl implements PatientService {
         Patient patient = patientRepository.findById(patientId)
                 .orElseThrow(() ->
                         new ResourceNotFoundException(
-                                "Patient not found with id: " + patientId
-                        )                );
+                                "Patient not found with id: " + patientId  )
+                                       );
 
         return mapToResponse(patient);
     }
