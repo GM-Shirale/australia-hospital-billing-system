@@ -1,7 +1,7 @@
-package com.hospital.hospital_billing_system.entity;
+package com.hospital.hospital_billing_system.laboratary.entity;
 
 
-import com.hospital.hospital_billing_system.entity.enums.ReportStatus;
+import com.hospital.hospital_billing_system.laboratary.entity.enums.ReportStatus;
 import jakarta.persistence.*;
 import lombok.*;
 

@@ -1,8 +1,11 @@
-package com.hospital.hospital_billing_system.entity;
+package com.hospital.hospital_billing_system.laboratary.entity;
 
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;

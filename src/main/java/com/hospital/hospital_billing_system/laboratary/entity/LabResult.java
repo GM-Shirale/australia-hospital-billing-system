@@ -1,11 +1,12 @@
-package com.hospital.hospital_billing_system.entity;
+package com.hospital.hospital_billing_system.laboratary.entity;
 
 
-
-
-import com.hospital.hospital_billing_system.entity.enums.ResultStatus;
+import com.hospital.hospital_billing_system.laboratary.entity.enums.ResultStatus;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
