@@ -1,5 +1,6 @@
 package com.hospital.hospital_billing_system.patient.entity;
 
+import com.hospital.hospital_billing_system.common.enums.AddressType;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -18,9 +19,7 @@ public class PatientAddress {
     @Column(name = "address_id")
     private Long addressId;
 
-    // address type like HOME, WORK
-    @Column(name = "address_type", nullable = false, length = 30)
-    private String addressType;
+
 
     // street address
     @Column(name = "address_line1", nullable = false, length = 255)
@@ -50,4 +49,9 @@ public class PatientAddress {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "patient_id", nullable = false)
     private Patient patient;
+
+    // address type like HOME, WORK
+    @Enumerated(EnumType.STRING)
+    @Column(name = "address_type", nullable = false, length = 30)
+    private AddressType addressType;
 }
