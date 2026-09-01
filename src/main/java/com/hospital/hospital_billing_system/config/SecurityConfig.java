@@ -3,6 +3,7 @@ package com.hospital.hospital_billing_system.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
@@ -13,7 +14,7 @@ public class SecurityConfig {
 
         http
                 // disable CSRF for REST APIs during development
-                .csrf(csrf -> csrf.disable())
+                .csrf(AbstractHttpConfigurer::disable)
 
                 // allow patient APIs without authentication
                 .authorizeHttpRequests(auth -> auth
