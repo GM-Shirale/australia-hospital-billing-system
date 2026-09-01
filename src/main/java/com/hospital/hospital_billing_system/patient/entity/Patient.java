@@ -3,6 +3,7 @@ package com.hospital.hospital_billing_system.patient.entity;
 import com.hospital.hospital_billing_system.common.enums.Gender;
 import com.hospital.hospital_billing_system.common.enums.PatientStatus;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -91,11 +92,13 @@ public class Patient {
      * Patient email address.
      */
     @Column(name = "email", length = 255)
+    @Email
     private String email;
 
     /**
      * Patient phone number.
      */
+
     @Column(name = "phone", length = 30)
     private String phone;
 

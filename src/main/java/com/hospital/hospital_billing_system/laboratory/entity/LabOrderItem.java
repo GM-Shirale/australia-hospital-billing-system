@@ -1,4 +1,4 @@
-package com.hospital.hospital_billing_system.laboratary.entity;
+package com.hospital.hospital_billing_system.laboratory.entity;
 
 
 import jakarta.persistence.*;

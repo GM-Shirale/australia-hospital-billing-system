@@ -1,10 +1,10 @@
-package com.hospital.hospital_billing_system.laboratary.entity;
+package com.hospital.hospital_billing_system.laboratory.entity;
 
 
 
-import com.hospital.hospital_billing_system.laboratary.entity.enums.LabOrderPriority;
-import com.hospital.hospital_billing_system.laboratary.entity.enums.LabOrderStatus;
 
+import com.hospital.hospital_billing_system.common.enums.LabOrderPriority;
+import com.hospital.hospital_billing_system.common.enums.LabOrderStatus;
 import com.hospital.hospital_billing_system.patient.entity.Patient;
 import jakarta.persistence.*;
 import lombok.*;

@@ -1,4 +1,4 @@
-package com.hospital.hospital_billing_system.laboratary.entity;
+package com.hospital.hospital_billing_system.laboratory.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -36,17 +36,23 @@ public class LabTest {
 
 	@Column(name = "price", nullable = false, precision = 10, scale = 2) 
 	private BigDecimal price;
+
 	@Column(name = "turnaround_time")
-	private Integer turnaroundTime; 
+	private Integer turnaroundTime;
+
 	@Column(name = "active", nullable = false) 
 	private Boolean active = true;
+
 	@Column(name = "created_at", nullable = false) 
 	private LocalDateTime createdAt;
+
 	@Column(name = "updated_at")
 	private LocalDateTime updatedAt;
+
 	@PrePersist 
 	protected void onCreate() { 
-		createdAt = LocalDateTime.now(); } 
+		createdAt = LocalDateTime.now(); }
+
 	@PreUpdate 
 	protected void onUpdate() {
 		updatedAt = LocalDateTime.now(); } }
