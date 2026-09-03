@@ -1,10 +1,10 @@
 package com.hospital.hospital_billing_system.laboratory.service;
 
+import com.hospital.hospital_billing_system.common.exception.DuplicateResourceException;
+import com.hospital.hospital_billing_system.common.exception.ResourceNotFoundException;
 import com.hospital.hospital_billing_system.laboratory.dto.LabTestRequestDTO;
 import com.hospital.hospital_billing_system.laboratory.dto.LabTestResponseDTO;
 import com.hospital.hospital_billing_system.laboratory.entity.LabTest;
-import com.hospital.hospital_billing_system.laboratory.exception.DuplicateResourceException;
-import com.hospital.hospital_billing_system.laboratory.exception.ResourceNotFoundException;
 import com.hospital.hospital_billing_system.laboratory.repo.LabTestRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -16,6 +16,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @Transactional
 public class LabTestService {
+
 
     private final LabTestRepository labTestRepository;
 

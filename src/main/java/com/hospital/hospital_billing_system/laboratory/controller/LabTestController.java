@@ -44,7 +44,7 @@ public class LabTestController {
                 labTestService.getAllLabTests()
         );
     }
-
+    @PutMapping("/{id}")
     public ResponseEntity<LabTestResponseDTO> updateLanTest(
             @PathVariable Long id,
             @Valid @RequestBody LabTestRequestDTO requestDTO){
@@ -55,6 +55,7 @@ public class LabTestController {
         );
     }
 
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteLabTest(
             @PathVariable Long id){
 
