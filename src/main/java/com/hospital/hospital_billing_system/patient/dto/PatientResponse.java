@@ -13,7 +13,6 @@ public class PatientResponse {
     // patient id
     private Long patientId;
 
-    // unique patient number
     private String patientNumber;
 
     // first name of patient
