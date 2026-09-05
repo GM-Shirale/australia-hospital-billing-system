@@ -10,15 +10,20 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(
+            HttpSecurity http) throws Exception {
 
         http
                 // disable CSRF for REST APIs during development
                 .csrf(AbstractHttpConfigurer::disable)
 
-                // allow patient APIs without authentication
+                // allow patient and billing APIs without authentication
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/patients/**").permitAll()
+                        .requestMatchers(
+                                "/api/patients/**",
+                                "/api/bills/**",
+                                "/api/bill-items/**"
+                        ).permitAll()
                         .anyRequest().authenticated()
                 );
 
