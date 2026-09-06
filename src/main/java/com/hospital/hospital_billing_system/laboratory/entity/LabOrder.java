@@ -31,7 +31,7 @@ public class LabOrder {
     @JoinColumn(name = "patient_id", nullable = false)
     private Patient patient;
 
-    @Column(name = "doctor_id", nullable = false)
+    @Column(name = "doctor_id")
     private Long doctorId;
 
     @Column(name = "order_date", nullable = false)

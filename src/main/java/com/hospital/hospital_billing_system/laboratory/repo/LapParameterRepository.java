@@ -15,6 +15,8 @@ public interface LapParameterRepository extends JpaRepository<LabParameter,Long 
 
     boolean existsByLabTestIdAndParameterName(Long labTestId,String parameterName);
 
+boolean existsByParameterCode(String parameterCode);
 
+boolean existsByParameterCodeAndIdNot(String parameterCode,Long id);
 
 }

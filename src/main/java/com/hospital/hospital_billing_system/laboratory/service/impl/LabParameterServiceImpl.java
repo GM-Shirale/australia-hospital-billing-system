@@ -11,11 +11,13 @@ import com.hospital.hospital_billing_system.laboratory.service.LabParameterServi
 import com.hospital.hospital_billing_system.laboratory.repo.LapParameterRepository;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.hospital.hospital_billing_system.laboratory.repo.LapParameterRepository;
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -26,13 +28,41 @@ public class LabParameterServiceImpl implements LabParameterService {
 
 
     @Override
+    @Transactional
     public LabParameterResponseDTO createParameter(LabParameterRequestDTO request) {
+        log.info(
+                "Creating lab parameter with code:{},name {}, labTestId: {}",
+                request.getParameterCode(),
+                request.getParameterName(),
+                request.getLabTestId()
+        );
+
         LabTest labTest=findLabTest(request.getLabTestId());
+
+
+        if (lapParameterRepository.existsByParameterCode(
+                request.getParameterCode())){
+
+            log.warn(
+                    "Duplicate lab parameter code detected: {}"+
+                    request.getParameterCode()
+            );
+            throw new DuplicateResourceException(
+                    "Parameter code already exists : "
+                    +request.getParameterCode()
+            );
+        }
 
         if (lapParameterRepository.existsByLabTestIdAndParameterName(
                 request.getLabTestId(),
                 request.getParameterName()
         )){
+            log.warn(
+                    "Duplicate parameter name {} for this lab test:"+
+                     request.getParameterName()
+            );
+
+
             throw new DuplicateResourceException(
                     "Parameter already exists for this lab test"
             );
@@ -51,6 +81,10 @@ public class LabParameterServiceImpl implements LabParameterService {
         LabParameter savedParameter=
                 lapParameterRepository.save(parameter);
 
+        log.info(
+                "Lab parameter created successfully. ID: {}",
+                savedParameter.getId()
+        );
         return mapToResponse(savedParameter);
     }
 
@@ -60,10 +94,20 @@ public class LabParameterServiceImpl implements LabParameterService {
     @Transactional(readOnly = true)
     public LabParameterResponseDTO getParameterById(Long id) {
 
+        log.debug("Fetching lab parameter with ID: {}", id);
+
+
         LabParameter parameter=lapParameterRepository.findById(id)
                 .orElseThrow(()->new ResourceNotFoundException(
                         "Lab parameter not found with id "+id
                 ));
+
+        log.debug(
+                "Lab parameter found. ID: {}, code: {}",
+                parameter.getId(),
+                parameter.getParameterCode()
+        );
+
         return mapToResponse(parameter);
     }
 
@@ -91,42 +135,68 @@ public class LabParameterServiceImpl implements LabParameterService {
     }
 
     @Override
-    public LabParameterResponseDTO updateParameters(Long id, LabParameterRequestDTO request) {
+    @Transactional
+    public LabParameterResponseDTO updateParameters(
+            Long id,
+            LabParameterRequestDTO request) {
 
-       LabParameter parameter=lapParameterRepository.findById(id)
-               .orElseThrow(()->
-                       new ResourceNotFoundException(
-                               "Lab parameter not found with id: "+id
-                       ));
+        // 1. Find existing parameter
+        LabParameter parameter = lapParameterRepository.findById(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Lab parameter not found with id: " + id
+                        )
+                );
 
-       LabTest labTest=findLabTest(request.getLabTestId());
 
-       boolean duplicateExists=
-               lapParameterRepository
-                       .findByLabTestIdAndParameterName(
-                               request.getLabTestId(),
-                               request.getParameterName()
-                       )
-                       .filter(existing->!existing.getId().equals(id))
-                       .isPresent();
+        LabTest labTest = findLabTest(request.getLabTestId());
 
-       if (duplicateExists){
-           throw new DuplicateResourceException(
-                   "parameter already exists fo this lab test"
-           );
-       }
-       parameter.setParameterCode(request.getParameterCode());
-       parameter.setResultType(request.getResultType());
-       parameter.setParameterName(request.getParameterName());
-       parameter.setUnit(request.getUnit());
-       parameter.setReferenceRange(request.getReferenceRange());
-       parameter.setDescription(request.getDescription());
-       parameter.setActive(request.getActive());
-       parameter.setLabTest(labTest);
+        //  Check duplicate parameter code
+        boolean duplicateCodeExists =
+                lapParameterRepository.existsByParameterCodeAndIdNot(
+                        request.getParameterCode(),
+                        id
+                );
 
-       LabParameter updatedParameter=
-               lapParameterRepository.save(parameter);
+        if (duplicateCodeExists) {
+            throw new DuplicateResourceException(
+                    "Parameter code already exists: "
+                            + request.getParameterCode()
+            );
+        }
 
+        //  Check duplicate parameter name within the same LabTest
+        boolean duplicateNameExists =
+                lapParameterRepository
+                        .findByLabTestIdAndParameterName(
+                                request.getLabTestId(),
+                                request.getParameterName()
+                        )
+                        .filter(existing -> !existing.getId().equals(id))
+                        .isPresent();
+
+        if (duplicateNameExists) {
+            throw new DuplicateResourceException(
+                    "Parameter name already exists for this lab test: "
+                            + request.getParameterName()
+            );
+        }
+
+        //  Update parameter fields
+        parameter.setParameterCode(request.getParameterCode());
+        parameter.setResultType(request.getResultType());
+        parameter.setParameterName(request.getParameterName());
+        parameter.setUnit(request.getUnit());
+        parameter.setReferenceRange(request.getReferenceRange());
+        parameter.setDescription(request.getDescription());
+        parameter.setActive(request.getActive());
+        parameter.setLabTest(labTest);
+
+        //  Save updated parameter
+        LabParameter updatedParameter =
+                lapParameterRepository.save(parameter);
+
+        //  Return response DTO
         return mapToResponse(updatedParameter);
     }
 
