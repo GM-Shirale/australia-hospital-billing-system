@@ -40,6 +40,7 @@ public class LabParameter {
     private String description;
 
     @Column(name = "active", nullable = false)
+    @Builder.Default
     private Boolean active = true;
 
     @ManyToOne(fetch = FetchType.LAZY)
