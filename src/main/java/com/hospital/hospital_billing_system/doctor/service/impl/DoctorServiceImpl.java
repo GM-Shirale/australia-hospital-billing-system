@@ -4,6 +4,8 @@ import com.hospital.hospital_billing_system.common.exception.DuplicateResourceEx
 import com.hospital.hospital_billing_system.common.exception.ResourceNotFoundException;
 import com.hospital.hospital_billing_system.department.entity.Department;
 import com.hospital.hospital_billing_system.department.repository.DepartmentRepository;
+import com.hospital.hospital_billing_system.doctor.dto.DoctorConsultationChargeRequest;
+import com.hospital.hospital_billing_system.doctor.dto.DoctorConsultationChargeResponse;
 import com.hospital.hospital_billing_system.doctor.dto.DoctorRequest;
 import com.hospital.hospital_billing_system.doctor.dto.DoctorResponse;
 import com.hospital.hospital_billing_system.doctor.entity.Doctor;
@@ -13,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -140,6 +143,36 @@ public class DoctorServiceImpl implements DoctorService {
                 .phone(doctor.getPhone())
                 .email(doctor.getEmail())
                 .providerNo(doctor.getProviderNo())
+                .build();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public DoctorConsultationChargeResponse verifyAndCalculateConsultationCharge(DoctorConsultationChargeRequest request) {
+        // Step 1: Verify doctor exists and belongs strictly to the requested hospital tenant
+        Doctor doctor = doctorRepository.findByDoctorIdAndTenantId(request.getDoctorId(), request.getTenantId())
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Doctor not found with ID: " + request.getDoctorId() + " for this hospital tenant."));
+
+        // Step 2: Enforce Australian Medicare Rule (SRS FR-031):
+        // A provider needs a valid provider number before generating an MBS-billable charge
+        boolean hasValidProviderNumber = doctor.getProviderNo() != null && !doctor.getProviderNo().trim().isEmpty();
+        if (!hasValidProviderNumber) {
+            throw new IllegalStateException("Doctor " + doctor.getFirstName() + " " + doctor.getLastName() +
+                    " does not possess a valid Medicare Provider Number and cannot raise billable charges.");
+        }
+
+        return DoctorConsultationChargeResponse.builder()
+                .doctorId(doctor.getDoctorId())
+                .tenantId(doctor.getTenantId())
+                .doctorFullName("Dr. " + doctor.getFirstName() + " " + doctor.getLastName())
+                .specialization(doctor.getSpecialization())
+                .providerNo(doctor.getProviderNo())
+                .departmentId(doctor.getDepartment().getDepartmentId())
+                .departmentName(doctor.getDepartment().getDepartmentName())
+                .consultationFee(request.getConsultationFee())
+                .mbsBillable(true)
+                .verifiedAt(Instant.now())
                 .build();
     }
 }

@@ -1,5 +1,7 @@
 package com.hospital.hospital_billing_system.doctor.controller;
 
+import com.hospital.hospital_billing_system.doctor.dto.DoctorConsultationChargeRequest;
+import com.hospital.hospital_billing_system.doctor.dto.DoctorConsultationChargeResponse;
 import com.hospital.hospital_billing_system.doctor.dto.DoctorRequest;
 import com.hospital.hospital_billing_system.doctor.dto.DoctorResponse;
 import com.hospital.hospital_billing_system.doctor.service.DoctorService;
@@ -90,5 +92,13 @@ public class DoctorController {
             @RequestHeader("X-Tenant-ID") UUID tenantId) {
         doctorService.deleteDoctor(doctorId, tenantId);
         return ResponseEntity.noContent().build();
+    }
+
+    // Endpoint consumed by Admissions / Billing to verify doctor eligibility and calculate consultation charge
+    @PostMapping("/consultation-charge")
+    public ResponseEntity<DoctorConsultationChargeResponse> verifyConsultationCharge(
+            @Valid @RequestBody DoctorConsultationChargeRequest request) {
+        DoctorConsultationChargeResponse response = doctorService.verifyAndCalculateConsultationCharge(request);
+        return ResponseEntity.ok(response);
     }
 }
