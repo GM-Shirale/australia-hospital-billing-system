@@ -55,7 +55,7 @@ public class GlobalExceptionHandler {
 
         ErrorResponse errorResponse1 = new ErrorResponse(
                 LocalDateTime.now(),
-                HttpStatus.CREATED.value(),
+                HttpStatus.CONFLICT.value(),
                 ex.getMessage(),
                 request.getRequestURI()
         );
