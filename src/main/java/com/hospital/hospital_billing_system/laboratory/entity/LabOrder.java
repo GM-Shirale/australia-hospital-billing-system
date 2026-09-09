@@ -5,6 +5,7 @@ package com.hospital.hospital_billing_system.laboratory.entity;
 
 import com.hospital.hospital_billing_system.common.enums.LabOrderPriority;
 import com.hospital.hospital_billing_system.common.enums.LabOrderStatus;
+import com.hospital.hospital_billing_system.doctor.entity.Doctor;
 import com.hospital.hospital_billing_system.patient.entity.Patient;
 import jakarta.persistence.*;
 import lombok.*;
@@ -31,8 +32,9 @@ public class LabOrder {
     @JoinColumn(name = "patient_id", nullable = false)
     private Patient patient;
 
-    @Column(name = "doctor_id")
-    private Long doctorId;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "doctor_id", nullable = false)
+    private Doctor doctor;
 
     @Column(name = "order_date", nullable = false)
     private LocalDateTime orderDate;

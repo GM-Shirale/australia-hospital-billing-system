@@ -5,6 +5,7 @@ import com.hospital.hospital_billing_system.common.enums.LabOrderStatus;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Data
 @NoArgsConstructor
@@ -13,7 +14,7 @@ import java.time.LocalDateTime;
 public class LabOrderResponseDTO {
 
 
-    private Long doctorId;
+    private UUID doctorId;
 
     private Long id;
 

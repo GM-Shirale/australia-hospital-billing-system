@@ -2,12 +2,12 @@ package com.hospital.hospital_billing_system.laboratory.service;
 
 import com.hospital.hospital_billing_system.common.exception.DuplicateResourceException;
 import com.hospital.hospital_billing_system.common.exception.ResourceNotFoundException;
-
+import com.hospital.hospital_billing_system.doctor.entity.Doctor;
+import com.hospital.hospital_billing_system.doctor.repository.DoctorRepository;
 import com.hospital.hospital_billing_system.laboratory.dto.LabOrderRequestDTO;
 import com.hospital.hospital_billing_system.laboratory.dto.LabOrderResponseDTO;
 import com.hospital.hospital_billing_system.laboratory.entity.LabOrder;
 import com.hospital.hospital_billing_system.laboratory.repo.LabOrderRepository;
-
 import com.hospital.hospital_billing_system.patient.entity.Patient;
 import com.hospital.hospital_billing_system.patient.repository.PatientRepository;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -25,17 +26,24 @@ public class LabOrderService {
 
     private final LabOrderRepository labOrderRepository;
     private final PatientRepository patientRepository;
+    private final DoctorRepository doctorRepository;
 
-    // Create Lab Order
+
+    // =========================================================
+    // CREATE LAB ORDER
+    // =========================================================
+
     public LabOrderResponseDTO createLabOrder(
             LabOrderRequestDTO request) {
 
         log.info(
-                "Creating lab order. Order number: {}, Patient ID: {}",
+                "Creating lab order. Order number: {}, Patient ID: {}, Doctor ID: {}",
                 request.getOrderNumber(),
-                request.getPatientId()
+                request.getPatientId(),
+                request.getDoctorId()
         );
 
+        // Check duplicate order number
         if (labOrderRepository.existsByOrderNumber(
                 request.getOrderNumber())) {
 
@@ -45,12 +53,21 @@ public class LabOrderService {
             );
         }
 
-        Patient patient = findPatient(request.getPatientId());
+        // Find patient
+        Patient patient = findPatient(
+                request.getPatientId()
+        );
 
+        // Find doctor
+        Doctor doctor = findDoctor(
+                request.getDoctorId()
+        );
+
+        // Create LabOrder
         LabOrder labOrder = LabOrder.builder()
                 .orderNumber(request.getOrderNumber())
                 .patient(patient)
-                .doctorId(null)
+                .doctor(doctor)
                 .clinicalNotes(request.getClinicalNotes())
                 .build();
 
@@ -66,11 +83,18 @@ public class LabOrderService {
         return mapToResponse(savedOrder);
     }
 
-    // Get Lab Order by ID
+
+    // =========================================================
+    // GET LAB ORDER BY ID
+    // =========================================================
+
     @Transactional(readOnly = true)
     public LabOrderResponseDTO getLabOrderById(Long id) {
 
-        log.debug("Fetching lab order with ID: {}", id);
+        log.debug(
+                "Fetching lab order with ID: {}",
+                id
+        );
 
         LabOrder labOrder = labOrderRepository.findById(id)
                 .orElseThrow(() ->
@@ -82,7 +106,11 @@ public class LabOrderService {
         return mapToResponse(labOrder);
     }
 
-    // Get All Lab Orders
+
+    // =========================================================
+    // GET ALL LAB ORDERS
+    // =========================================================
+
     @Transactional(readOnly = true)
     public List<LabOrderResponseDTO> getAllLabOrders() {
 
@@ -94,12 +122,19 @@ public class LabOrderService {
                 .toList();
     }
 
-    // Update Lab Order
+
+    // =========================================================
+    // UPDATE LAB ORDER
+    // =========================================================
+
     public LabOrderResponseDTO updateLabOrder(
             Long id,
             LabOrderRequestDTO request) {
 
-        log.info("Updating lab order. ID: {}", id);
+        log.info(
+                "Updating lab order. ID: {}",
+                id
+        );
 
         LabOrder labOrder = labOrderRepository.findById(id)
                 .orElseThrow(() ->
@@ -108,6 +143,7 @@ public class LabOrderService {
                         )
                 );
 
+        // Check duplicate order number
         if (!labOrder.getOrderNumber()
                 .equals(request.getOrderNumber())
                 && labOrderRepository.existsByOrderNumberAndIdNot(
@@ -120,11 +156,32 @@ public class LabOrderService {
             );
         }
 
-        Patient patient = findPatient(request.getPatientId());
+        // Find patient
+        Patient patient = findPatient(
+                request.getPatientId()
+        );
 
-        labOrder.setOrderNumber(request.getOrderNumber());
-        labOrder.setPatient(patient);
-        labOrder.setClinicalNotes(request.getClinicalNotes());
+        // Find doctor
+        Doctor doctor = findDoctor(
+                request.getDoctorId()
+        );
+
+        // Update fields
+        labOrder.setOrderNumber(
+                request.getOrderNumber()
+        );
+
+        labOrder.setPatient(
+                patient
+        );
+
+        labOrder.setDoctor(
+                doctor
+        );
+
+        labOrder.setClinicalNotes(
+                request.getClinicalNotes()
+        );
 
         LabOrder updatedOrder =
                 labOrderRepository.save(labOrder);
@@ -137,10 +194,17 @@ public class LabOrderService {
         return mapToResponse(updatedOrder);
     }
 
-    // Delete Lab Order
+
+    // =========================================================
+    // DELETE LAB ORDER
+    // =========================================================
+
     public void deleteLabOrder(Long id) {
 
-        log.info("Deleting lab order. ID: {}", id);
+        log.info(
+                "Deleting lab order. ID: {}",
+                id
+        );
 
         LabOrder labOrder = labOrderRepository.findById(id)
                 .orElseThrow(() ->
@@ -157,7 +221,11 @@ public class LabOrderService {
         );
     }
 
-    // Find Patient
+
+    // =========================================================
+    // FIND PATIENT
+    // =========================================================
+
     private Patient findPatient(Long patientId) {
 
         return patientRepository.findById(patientId)
@@ -169,22 +237,62 @@ public class LabOrderService {
                 );
     }
 
-    // Map Entity -> Response DTO
+
+    // =========================================================
+    // FIND DOCTOR
+    // =========================================================
+
+    private Doctor findDoctor(UUID doctorId) {
+
+        return doctorRepository.findById(doctorId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Doctor not found with ID: "
+                                        + doctorId
+                        )
+                );
+    }
+
+
+    // =========================================================
+    // MAP ENTITY -> RESPONSE DTO
+    // =========================================================
+
     private LabOrderResponseDTO mapToResponse(
             LabOrder labOrder) {
 
         return LabOrderResponseDTO.builder()
                 .id(labOrder.getId())
                 .orderNumber(labOrder.getOrderNumber())
-                .patientId(labOrder.getPatient().getPatientId())
-                .patientNumber(labOrder.getPatient().getPatientNumber())
-                .orderedAt(labOrder.getOrderDate())
-                .status(labOrder.getStatus())
-                .clinicalNotes(labOrder.getClinicalNotes())
-                .createdAt(labOrder.getCreatedAt())
-                .updatedAt(labOrder.getUpdatedAt())
+
+                // Patient
+                .patientId(
+                        labOrder.getPatient().getPatientId()
+                )
+                .patientNumber(
+                        labOrder.getPatient().getPatientNumber()
+                )
+
+                // Doctor
+                .doctorId(
+                        labOrder.getDoctor().getDoctorId()
+                )
+
+                .orderedAt(
+                        labOrder.getOrderDate()
+                )
+                .status(
+                        labOrder.getStatus()
+                )
+                .clinicalNotes(
+                        labOrder.getClinicalNotes()
+                )
+                .createdAt(
+                        labOrder.getCreatedAt()
+                )
+                .updatedAt(
+                        labOrder.getUpdatedAt()
+                )
                 .build();
     }
-
-
 }

@@ -6,6 +6,8 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 
+import java.util.UUID;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -18,6 +20,8 @@ public class LabOrderRequestDTO {
 
     @NotNull(message = "Patient ID is required")
     private Long patientId;
+    @NotNull(message = "Doctor ID is required")
+    private UUID doctorId;
 
     @Size(max = 500, message = "Clinical notes must not exceed 500 characters")
     private String clinicalNotes;
