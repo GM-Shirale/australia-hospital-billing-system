@@ -75,7 +75,7 @@ public class Patient {
     private String phone;
 
 
-    @Column(name = "emergency_contact_name", length = 10)
+    @Column(name = "emergency_contact_name", length = 150)
     private String emergencyContactName;
 
 

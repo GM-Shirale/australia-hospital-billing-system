@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class MedicineMapper {
 
-    public Medicine toEntity(MedicineRequestDto request){
+    public Medicine toEntity(MedicineRequestDto request) {
 
         return Medicine.builder()
                 .medicineCode(request.getMedicineCode())
@@ -16,9 +16,8 @@ public class MedicineMapper {
                 .brandName(request.getBrandName())
                 .strength(request.getStrength())
                 .dosageForm(request.getDosageForm())
-                .dosageForm(request.getDosageForm())
+                .route(request.getRoute())
                 .manufacturer(request.getManufacturer())
-                .route(request.getMedicineRoute())
                 .pbsItemCode(request.getPbsItemCode())
                 .prescriptionRequired(request.getPrescriptionRequired())
                 .unitPrice(request.getUnitPrice())
@@ -27,7 +26,7 @@ public class MedicineMapper {
                 .build();
     }
 
-    public MedicineResponseDto toResponseDto(Medicine medicine){
+    public MedicineResponseDto toResponseDto(Medicine medicine) {
 
         return MedicineResponseDto.builder()
                 .medicineId(medicine.getMedicineId())
