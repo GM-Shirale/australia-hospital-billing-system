@@ -8,106 +8,75 @@ import com.hospital.hospital_billing_system.billing.repository.BillItemRepositor
 import com.hospital.hospital_billing_system.billing.repository.BillRepository;
 import com.hospital.hospital_billing_system.billing.service.BillItemService;
 import com.hospital.hospital_billing_system.common.exception.ResourceNotFoundException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
+@Slf4j
 public class BillItemServiceImpl implements BillItemService {
-
-    private static final Logger log =
-            LoggerFactory.getLogger(BillItemServiceImpl.class);
 
     private final BillItemRepository billItemRepository;
     private final BillRepository billRepository;
 
-    // constructor injection
-    public BillItemServiceImpl(
-            BillItemRepository billItemRepository,
-            BillRepository billRepository) {
-
-        this.billItemRepository = billItemRepository;
-        this.billRepository = billRepository;
-    }
-
     @Override
-    public BillItemResponse addBillItem(
-            Long billId,
-            BillItemRequest request) {
+    @Transactional
+    public BillItemResponse createBillItem(Long billId, BillItemRequest request) {
 
-        log.info("Adding bill item to bill with id: {}", billId);
+        log.info("Creating bill item for bill id: {}", billId);
 
-        // find bill
         Bill bill = billRepository.findById(billId)
                 .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "Bill not found with id: " + billId
-                        )
-                );
+                        new ResourceNotFoundException("Bill not found with id: " + billId));
 
-        // calculate item amount
-        BigDecimal amount = request.getUnitPrice()
+        validateRequest(request);
+
+        BigDecimal totalAmount = request.getUnitPrice()
                 .multiply(BigDecimal.valueOf(request.getQuantity()));
 
-        // create bill item using builder
         BillItem billItem = BillItem.builder()
                 .bill(bill)
-                .serviceType(request.getServiceType())
-                .description(request.getDescription())
+                .itemName(request.getItemName())
+                .itemType(request.getItemType())
                 .quantity(request.getQuantity())
                 .unitPrice(request.getUnitPrice())
-                .amount(amount)
+                .totalAmount(totalAmount)
                 .build();
 
-        // save bill item
-        BillItem savedItem =
-                billItemRepository.save(billItem);
+        BillItem savedBillItem = billItemRepository.save(billItem);
 
-        log.info(
-                "Bill item created successfully with id: {}",
-                savedItem.getBillItemId()
-        );
+        log.info("Bill item created successfully with id: {}", savedBillItem.getBillItemId());
 
-        return mapToResponse(savedItem);
+        return mapToResponse(savedBillItem);
     }
 
     @Override
-    public BillItemResponse getBillItemById(
-            Long billItemId) {
+    @Transactional(readOnly = true)
+    public BillItemResponse getBillItemById(Long billItemId) {
 
-        log.info(
-                "Fetching bill item with id: {}",
-                billItemId
-        );
+        log.info("Fetching bill item with id: {}", billItemId);
 
-        BillItem billItem = billItemRepository
-                .findById(billItemId)
+        BillItem billItem = billItemRepository.findById(billItemId)
                 .orElseThrow(() ->
                         new ResourceNotFoundException(
-                                "Bill item not found with id: " + billItemId
-                        )
-                );
+                                "Bill item not found with id: " + billItemId));
 
         return mapToResponse(billItem);
     }
 
     @Override
-    public List<BillItemResponse> getBillItemsByBillId(
-            Long billId) {
+    @Transactional(readOnly = true)
+    public List<BillItemResponse> getBillItemsByBillId(Long billId) {
 
-        log.info(
-                "Fetching bill items for bill with id: {}",
-                billId
-        );
+        log.info("Fetching bill items for bill id: {}", billId);
 
-        // check bill exists
         if (!billRepository.existsById(billId)) {
-            throw new ResourceNotFoundException(
-                    "Bill not found with id: " + billId
-            );
+            throw new ResourceNotFoundException("Bill not found with id: " + billId);
         }
 
         return billItemRepository.findByBillBillId(billId)
@@ -117,79 +86,80 @@ public class BillItemServiceImpl implements BillItemService {
     }
 
     @Override
-    public BillItemResponse updateBillItem(
-            Long billItemId,
-            BillItemRequest request) {
+    @Transactional
+    public BillItemResponse updateBillItem(Long billItemId, BillItemRequest request) {
 
-        log.info(
-                "Updating bill item with id: {}",
-                billItemId
-        );
+        log.info("Updating bill item with id: {}", billItemId);
 
-        BillItem billItem = billItemRepository
-                .findById(billItemId)
+        BillItem billItem = billItemRepository.findById(billItemId)
                 .orElseThrow(() ->
                         new ResourceNotFoundException(
-                                "Bill item not found with id: " + billItemId
-                        )
-                );
+                                "Bill item not found with id: " + billItemId));
 
-        // calculate new item amount
-        BigDecimal amount = request.getUnitPrice()
+        validateRequest(request);
+
+        BigDecimal totalAmount = request.getUnitPrice()
                 .multiply(BigDecimal.valueOf(request.getQuantity()));
 
-        // update item details
-        billItem.setServiceType(request.getServiceType());
-        billItem.setDescription(request.getDescription());
+        billItem.setItemName(request.getItemName());
+        billItem.setItemType(request.getItemType());
         billItem.setQuantity(request.getQuantity());
         billItem.setUnitPrice(request.getUnitPrice());
-        billItem.setAmount(amount);
+        billItem.setTotalAmount(totalAmount);
 
-        BillItem updatedItem =
-                billItemRepository.save(billItem);
+        BillItem updatedBillItem = billItemRepository.save(billItem);
 
-        log.info(
-                "Bill item updated successfully with id: {}",
-                billItemId
-        );
+        log.info("Bill item updated successfully with id: {}", billItemId);
 
-        return mapToResponse(updatedItem);
+        return mapToResponse(updatedBillItem);
     }
 
     @Override
+    @Transactional
     public void deleteBillItem(Long billItemId) {
 
-        log.info(
-                "Deleting bill item with id: {}",
-                billItemId
-        );
+        log.info("Deleting bill item with id: {}", billItemId);
 
         if (!billItemRepository.existsById(billItemId)) {
             throw new ResourceNotFoundException(
-                    "Bill item not found with id: " + billItemId
-            );
+                    "Bill item not found with id: " + billItemId);
         }
 
         billItemRepository.deleteById(billItemId);
 
-        log.info(
-                "Bill item deleted successfully with id: {}",
-                billItemId
-        );
+        log.info("Bill item deleted successfully with id: {}", billItemId);
     }
 
-    // convert entity to response
-    private BillItemResponse mapToResponse(
-            BillItem billItem) {
+    private void validateRequest(BillItemRequest request) {
+
+        if (request.getItemName() == null || request.getItemName().isBlank()) {
+            throw new IllegalStateException("Item name is required");
+        }
+
+        if (request.getItemType() == null || request.getItemType().isBlank()) {
+            throw new IllegalStateException("Item type is required");
+        }
+
+        if (request.getQuantity() == null || request.getQuantity() <= 0) {
+            throw new IllegalStateException("Quantity must be greater than zero");
+        }
+
+        if (request.getUnitPrice() == null ||
+                request.getUnitPrice().compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalStateException("Unit price cannot be negative");
+        }
+    }
+
+    private BillItemResponse mapToResponse(BillItem billItem) {
 
         return BillItemResponse.builder()
                 .billItemId(billItem.getBillItemId())
                 .billId(billItem.getBill().getBillId())
-                .serviceType(billItem.getServiceType())
-                .description(billItem.getDescription())
+                .itemName(billItem.getItemName())
+                .itemType(billItem.getItemType())
                 .quantity(billItem.getQuantity())
                 .unitPrice(billItem.getUnitPrice())
-                .amount(billItem.getAmount())
+                .totalAmount(billItem.getTotalAmount())
                 .build();
     }
 }

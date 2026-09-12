@@ -9,15 +9,11 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class BillItemRequest {
+public class PaymentRequest {
 
     private Long billId;
 
-    private String itemName;
+    private BigDecimal amount;
 
-    private String itemType;
 
-    private Integer quantity;
-
-    private BigDecimal unitPrice;
 }
