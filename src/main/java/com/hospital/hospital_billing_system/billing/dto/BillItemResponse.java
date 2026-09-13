@@ -11,24 +11,12 @@ import java.math.BigDecimal;
 @Builder
 public class BillItemResponse {
 
-    // bill item id
     private Long billItemId;
-
-    // bill id
     private Long billId;
-
-    // type of hospital service
-    private String serviceType;
-
-    // description of the service
-    private String description;
-
-    // number of services
+    private String itemName;
+    private String itemType;
     private Integer quantity;
-
-    // price of one service
     private BigDecimal unitPrice;
+    private BigDecimal totalAmount;
 
-    // total amount for this item
-    private BigDecimal amount;
 }

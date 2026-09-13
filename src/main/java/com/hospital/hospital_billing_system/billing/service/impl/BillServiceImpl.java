@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -39,7 +40,7 @@ public class BillServiceImpl implements BillService {
             BillRequest request) {
 
         log.info("Creating bill for patient with id: {}", patientId);
-
+        log.info("========== BILL CREATE CONTROLLER/SERVICE REACHED ==========");
         // find patient
         Patient patient = patientRepository.findById(patientId)
                 .orElseThrow(() ->
@@ -47,6 +48,36 @@ public class BillServiceImpl implements BillService {
                                 "Patient not found with id: " + patientId
                         )
                 );
+
+        // validate bill amounts
+        if (request.getTotalAmount() == null ||
+                request.getPatientAmount() == null ||
+                request.getInsuranceAmount() == null ||
+                request.getMedicareAmount() == null) {
+
+            throw new IllegalStateException("All bill amounts are required");
+        }
+
+        // validate negative amounts
+        if (request.getTotalAmount().compareTo(BigDecimal.ZERO) < 0 ||
+                request.getPatientAmount().compareTo(BigDecimal.ZERO) < 0 ||
+                request.getInsuranceAmount().compareTo(BigDecimal.ZERO) < 0 ||
+                request.getMedicareAmount().compareTo(BigDecimal.ZERO) < 0) {
+
+            throw new IllegalStateException("Bill amounts cannot be negative");
+        }
+
+        // calculate total amount from all payers
+        BigDecimal payerTotal = request.getPatientAmount()
+                .add(request.getInsuranceAmount())
+                .add(request.getMedicareAmount());
+
+        // validate total amount
+        if (request.getTotalAmount().compareTo(payerTotal) != 0) {
+            throw new IllegalStateException(
+                    "Total amount must equal patient amount + insurance amount + medicare amount"
+            );
+        }
 
         // generate bill number
         long number = billRepository.getNextBillNumber();
@@ -62,6 +93,7 @@ public class BillServiceImpl implements BillService {
                 .patient(patient)
                 .totalAmount(request.getTotalAmount())
                 .insuranceAmount(request.getInsuranceAmount())
+                .medicareAmount(request.getMedicareAmount())
                 .patientAmount(request.getPatientAmount())
                 .billDate(LocalDateTime.now())
                 .build();
@@ -76,6 +108,8 @@ public class BillServiceImpl implements BillService {
 
         return mapToResponse(savedBill);
     }
+
+
 
     @Override
     public BillResponse getBillById(Long billId) {
@@ -139,9 +173,46 @@ public class BillServiceImpl implements BillService {
                         )
                 );
 
-        // update bill amounts
+        // Validate bill amounts
+        if (request.getTotalAmount() == null ||
+                request.getPatientAmount() == null ||
+                request.getInsuranceAmount() == null ||
+                request.getMedicareAmount() == null) {
+
+            throw new IllegalStateException(
+                    "All bill amounts are required"
+            );
+        }
+
+        // Validate negative amounts
+        if (request.getTotalAmount().compareTo(BigDecimal.ZERO) < 0 ||
+                request.getPatientAmount().compareTo(BigDecimal.ZERO) < 0 ||
+                request.getInsuranceAmount().compareTo(BigDecimal.ZERO) < 0 ||
+                request.getMedicareAmount().compareTo(BigDecimal.ZERO) < 0) {
+
+            throw new IllegalStateException(
+                    "Bill amounts cannot be negative"
+            );
+        }
+
+        // Calculate payer total
+        BigDecimal payerTotal =
+                request.getPatientAmount()
+                        .add(request.getInsuranceAmount())
+                        .add(request.getMedicareAmount());
+
+        // Validate total
+        if (request.getTotalAmount().compareTo(payerTotal) != 0) {
+
+            throw new IllegalStateException(
+                    "Total amount must equal patient amount + insurance amount + medicare amount"
+            );
+        }
+
+        // Update amounts
         bill.setTotalAmount(request.getTotalAmount());
         bill.setInsuranceAmount(request.getInsuranceAmount());
+        bill.setMedicareAmount(request.getMedicareAmount());
         bill.setPatientAmount(request.getPatientAmount());
 
         Bill updatedBill = billRepository.save(bill);
@@ -153,7 +224,6 @@ public class BillServiceImpl implements BillService {
 
         return mapToResponse(updatedBill);
     }
-
     @Override
     public void deleteBill(Long billId) {
 
@@ -182,6 +252,7 @@ public class BillServiceImpl implements BillService {
                 .patientId(bill.getPatient().getPatientId())
                 .totalAmount(bill.getTotalAmount())
                 .insuranceAmount(bill.getInsuranceAmount())
+                .medicareAmount(bill.getMedicareAmount())
                 .patientAmount(bill.getPatientAmount())
                 .billDate(bill.getBillDate())
                 .build();
