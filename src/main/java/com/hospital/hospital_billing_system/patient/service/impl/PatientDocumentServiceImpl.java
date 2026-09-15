@@ -236,6 +236,43 @@ public class PatientDocumentServiceImpl implements PatientDocumentService {
         );
     }
 
+    @Override
+    public void updateVerificationStatus(
+            Long documentId,
+            VerificationStatus status) {
+
+        log.info(
+                "Updating verification status for document id: {}",
+                documentId
+        );
+
+        // find document
+        PatientDocument document =
+                patientDocumentRepository.findById(documentId)
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException(
+                                        "Patient document not found with id: "
+                                                + documentId
+                                ));
+
+        // check verification status
+        if (status == null) {
+            throw new IllegalArgumentException(
+                    "Verification status is required"
+            );
+        }
+
+        document.setVerificationStatus(status);
+
+        patientDocumentRepository.save(document);
+
+        log.info(
+                "Document verification status updated successfully. documentId: {}, status: {}",
+                documentId,
+                status
+        );
+    }
+
     // convert entity to response
     private PatientDocumentResponse mapToResponse(
             PatientDocument document) {

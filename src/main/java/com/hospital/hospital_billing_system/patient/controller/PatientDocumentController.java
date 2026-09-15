@@ -4,6 +4,7 @@ package com.hospital.hospital_billing_system.patient.controller;
 import com.hospital.hospital_billing_system.patient.dto.PatientDocumentRequest;
 import com.hospital.hospital_billing_system.patient.dto.PatientDocumentResponse;
 import com.hospital.hospital_billing_system.patient.dto.PatientDocumentUploadRequest;
+import com.hospital.hospital_billing_system.patient.dto.VerificationStatusRequest;
 import com.hospital.hospital_billing_system.patient.service.PatientDocumentService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -80,6 +81,19 @@ public class PatientDocumentController {
                         request
                 )
         );
+    }
+
+    @PutMapping("/{documentId}/verification")
+    public ResponseEntity<Void> updateVerificationStatus(
+            @PathVariable Long documentId,
+            @RequestBody VerificationStatusRequest request) {
+
+        patientDocumentService.updateVerificationStatus(
+                documentId,
+                request.getStatus()
+        );
+
+        return ResponseEntity.noContent().build();
     }
 
     // delete document
