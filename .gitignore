@@ -33,3 +33,5 @@ build/
 .vscode/
 
 src/main/java/com/hospital/hospital_billing_system/patient/
+
+src/main/java/com/hospital/hospital_billing_system/pharmacy/
