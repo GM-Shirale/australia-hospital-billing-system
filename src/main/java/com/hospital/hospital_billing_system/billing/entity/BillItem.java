@@ -26,8 +26,9 @@ public class BillItem {
     @Column(name = "item_name", nullable = false, length = 150)
     private String itemName;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "item_type", nullable = false, length = 50)
-    private String itemType;
+    private BillItemType itemType;
 
     @Column(name = "quantity", nullable = false)
     private Integer quantity;

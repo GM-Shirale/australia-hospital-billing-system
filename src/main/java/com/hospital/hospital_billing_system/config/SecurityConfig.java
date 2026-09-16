@@ -30,7 +30,6 @@ public class SecurityConfig {
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
 
-                // Configure authentication and authorization
                 .authorizeHttpRequests(auth -> auth
 
                         // Login APIs are public
@@ -39,15 +38,92 @@ public class SecurityConfig {
                                 "/api/auth/user/login"
                         ).permitAll()
 
-                        // Admin APIs require ADMIN JWT
+                        // Admin APIs
                         .requestMatchers("/api/admin/**")
                         .hasRole("ADMIN")
 
-                        // All other APIs require a valid JWT
+                        // Patient APIs
+                        .requestMatchers(
+                                "/api/patients/**",
+                                "/api/patient-addresses/**",
+                                "/api/patient-documents/**"
+                        )
+                        .hasAnyRole(
+                                "ADMIN",
+                                "RECEPTIONIST",
+                                "DOCTOR",
+                                "BILLING_STAFF",
+                                "LAB_STAFF",
+                                "PHARMACY_STAFF"
+                        )
+
+                        // Admission APIs
+                        .requestMatchers("/api/admissions/**")
+                        .hasAnyRole(
+                                "ADMIN",
+                                "RECEPTIONIST",
+                                "DOCTOR",
+                                "BILLING_STAFF"
+                        )
+
+                        // Bill APIs
+                        .requestMatchers("/api/bills/**")
+                        .hasAnyRole(
+                                "ADMIN",
+                                "BILLING_STAFF"
+                        )
+
+                        // Invoice APIs
+                        .requestMatchers("/api/invoices/**")
+                        .hasAnyRole(
+                                "ADMIN",
+                                "BILLING_STAFF"
+                        )
+
+                        // Payment APIs
+                        .requestMatchers("/api/payments/**")
+                        .hasAnyRole(
+                                "ADMIN",
+                                "BILLING_STAFF"
+                        )
+
+                        // Payment transaction APIs
+                        .requestMatchers("/api/payment-transactions/**")
+                        .hasAnyRole(
+                                "ADMIN",
+                                "BILLING_STAFF"
+                        )
+
+                        // Refund APIs
+                        .requestMatchers("/api/refunds/**")
+                        .hasAnyRole(
+                                "ADMIN",
+                                "BILLING_STAFF"
+                        )
+
+                        // Billing summary APIs
+                        .requestMatchers("/api/billing-summary/**")
+                        .hasAnyRole(
+                                "ADMIN",
+                                "BILLING_STAFF"
+                        )
+
+                        // Bill items need additional business-level
+                        // authorization based on item type
+                        .requestMatchers("/api/bill-items/**")
+                        .hasAnyRole(
+                                "ADMIN",
+                                "BILLING_STAFF",
+                                "DOCTOR",
+                                "LAB_STAFF",
+                                "PHARMACY_STAFF"
+                        )
+
+                        // Any other authenticated API
                         .anyRequest().authenticated()
                 )
 
-                // Check JWT before Spring Security username/password authentication
+                // Check JWT before Spring Security authentication
                 .addFilterBefore(
                         jwtAuthenticationFilter,
                         UsernamePasswordAuthenticationFilter.class
