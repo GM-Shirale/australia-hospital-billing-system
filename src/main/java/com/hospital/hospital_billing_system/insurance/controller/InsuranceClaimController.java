@@ -14,7 +14,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/insurance/claims")
-@RequiredArgsConstructor
+//@RequiredArgsConstructor
 public class InsuranceClaimController {
 
     private final InsuranceClaimService claimService;
