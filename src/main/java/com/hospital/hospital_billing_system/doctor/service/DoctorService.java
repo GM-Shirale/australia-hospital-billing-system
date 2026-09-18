@@ -1,7 +1,7 @@
 package com.hospital.hospital_billing_system.doctor.service;
 
+import com.hospital.hospital_billing_system.doctor.dto.ChargeItemResponse;
 import com.hospital.hospital_billing_system.doctor.dto.DoctorConsultationChargeRequest;
-import com.hospital.hospital_billing_system.doctor.dto.DoctorConsultationChargeResponse;
 import com.hospital.hospital_billing_system.doctor.dto.DoctorRequest;
 import com.hospital.hospital_billing_system.doctor.dto.DoctorResponse;
 
@@ -27,8 +27,5 @@ public interface DoctorService {
 
     void deleteDoctor(UUID doctorId, UUID tenantId);
 
-    // Method to validate practitioner credentials and calculate consultation charge payload for Central Billing
-    DoctorConsultationChargeResponse verifyAndCalculateConsultationCharge(DoctorConsultationChargeRequest request);
-
-
+    ChargeItemResponse calculateConsultationCharge(DoctorConsultationChargeRequest request);
 }
