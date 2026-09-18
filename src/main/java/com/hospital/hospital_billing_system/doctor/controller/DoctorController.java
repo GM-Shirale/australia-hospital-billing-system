@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import java.util.UUID;
 
+
 /**
  * REST controller managing doctor and medical provider operations.
  */
