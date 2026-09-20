@@ -30,8 +30,8 @@ import java.util.UUID;
 public class DepartmentController {
 
     private final DepartmentService departmentService;
-
     // Create a new clinical department under a hospital tenant
+
     @PostMapping
     public ResponseEntity<DepartmentResponse> createDepartment(
             @Valid @RequestBody DepartmentRequest request) {
