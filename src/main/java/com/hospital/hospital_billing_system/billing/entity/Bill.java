@@ -55,6 +55,9 @@ public class Bill {
     @Column(name = "insurance_amount", nullable = false, precision = 12, scale = 2)
     private BigDecimal insuranceAmount;
 
+    @Column(name = "medicare_amount", nullable = false, precision = 12, scale = 2)
+    private BigDecimal medicareAmount;
+
     // when bill was generated
     @Column(name = "bill_date", nullable = false)
     private LocalDateTime billDate;

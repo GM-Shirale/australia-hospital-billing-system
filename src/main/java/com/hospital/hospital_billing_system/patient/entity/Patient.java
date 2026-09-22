@@ -71,7 +71,7 @@ public class Patient {
     private String email;
 
 
-    @Column(name = "phone", length = 10,unique = true)
+    @Column(name = "phone", length = 10)
     private String phone;
 
 

@@ -1,5 +1,6 @@
 package com.hospital.hospital_billing_system.billing.dto;
 
+import com.hospital.hospital_billing_system.billing.entity.BillItemType;
 import lombok.*;
 
 import java.math.BigDecimal;
@@ -11,15 +12,13 @@ import java.math.BigDecimal;
 @Builder
 public class BillItemRequest {
 
-    // type of hospital service
-    private String serviceType;
+    private Long billId;
 
-    // description of the service
-    private String description;
+    private String itemName;
 
-    // number of services
+    private BillItemType itemType;
+
     private Integer quantity;
 
-    // price of one service
     private BigDecimal unitPrice;
 }

@@ -11,12 +11,13 @@ import java.math.BigDecimal;
 @Builder
 public class BillRequest {
 
-    // total amount of the hospital bill
+    private Long patientId;
+
     private BigDecimal totalAmount;
 
-    // amount covered by insurance
+    private BigDecimal patientAmount;
+
     private BigDecimal insuranceAmount;
 
-    // amount to be paid by patient
-    private BigDecimal patientAmount;
+    private BigDecimal medicareAmount;
 }
