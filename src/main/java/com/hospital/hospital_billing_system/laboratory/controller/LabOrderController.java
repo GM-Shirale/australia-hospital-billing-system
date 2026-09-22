@@ -50,7 +50,7 @@ public class LabOrderController {
         );
     }
 
-    @DeleteMapping
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteLabOrder(
             @PathVariable Long id
     ){

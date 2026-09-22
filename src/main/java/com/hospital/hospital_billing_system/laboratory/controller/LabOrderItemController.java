@@ -66,7 +66,7 @@ public class LabOrderItemController {
     }
 
 
-    @DeleteMapping
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteOrderItem(
             @PathVariable Long id ){
         labOrderItemService.deleteOrderItem(id);

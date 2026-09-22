@@ -26,6 +26,7 @@ public interface LabReportService {
             Long id,
             LabReportRequestDTO request
     );
+    byte[] generateReportPdf(Long reportId);
 
     void deleteReport(Long id);
 }

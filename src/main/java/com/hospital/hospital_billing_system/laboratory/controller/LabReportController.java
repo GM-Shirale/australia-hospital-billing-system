@@ -6,9 +6,7 @@ import com.hospital.hospital_billing_system.laboratory.dto.LabReportResponseDTO;
 import com.hospital.hospital_billing_system.laboratory.service.LabReportService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -105,6 +103,23 @@ public class LabReportController {
         labReportService.deleteReport(id);
 
         return ResponseEntity.noContent().build();
+    }
+
+
+    @GetMapping("/{id}/pdf")
+    public ResponseEntity<byte[]> downloadReportPdf(
+            @PathVariable Long id
+    ) {
+
+        byte[] pdf = labReportService.generateReportPdf(id);
+
+        return ResponseEntity.ok()
+                .header(
+                        HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=lab-report-" + id + ".pdf"
+                )
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(pdf);
     }
 
 }

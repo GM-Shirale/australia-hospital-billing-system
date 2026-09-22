@@ -22,7 +22,7 @@ public class LabResultValueController {
     @PostMapping
     public ResponseEntity<LabResultValueResponseDTO> createResultValue(
             @Valid @RequestBody LabResultValueRequestDTO request) {
-
+        System.out.println();
         LabResultValueResponseDTO response =
                 labResultValueService.createResultValue(request);
 
