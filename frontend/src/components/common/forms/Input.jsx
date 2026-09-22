@@ -1,14 +1,24 @@
 import React from "react";
+
 import UseFormLabelInput from "./UseFormLabelInput";
 import UseFormSelect from "./UseFormSelect";
+import UseDate from "./UseDate";
 
 const InputBox = (inputDetails) => {
-  const { type, errors, field, register, watch, setValue } = inputDetails;
+  const {
+    type,
+    errors,
+    field,
+    register,
+    watch,
+    setValue,
+  } = inputDetails;
 
   const componentMap = {
     text: UseFormLabelInput,
     number: UseFormLabelInput,
     select: UseFormSelect,
+    date: UseDate,
   };
 
   const Component = componentMap[type];

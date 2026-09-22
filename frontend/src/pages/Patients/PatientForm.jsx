@@ -19,7 +19,7 @@ const PatientForm = () => {
 
   return (
     <div className="container-fluid p-4">
-      <div className="card shadow-sm col-6">
+      <div className="card shadow-sm">
         <div className="card-header">
           <h4 className="mb-0">Patient Registration</h4>
         </div>

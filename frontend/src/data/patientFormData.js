@@ -1,69 +1,73 @@
 export const patientFormData = [
   {
-    field: "patientName",
-    title: "Patient Name",
+    field: "firstName",
+    title: "First Name",
     type: "text",
-    className: "col-md-6",
+    className: "col-md-4",
   },
-
   {
-    field: "age",
-    title: "Age",
-    type: "number",
-    className: "col-md-6",
+    field: "middleName",
+    title: "Middle Name",
+    type: "text",
+    className: "col-md-4",
   },
-
+  {
+    field: "lastName",
+    title: "Last Name",
+    type: "text",
+    className: "col-md-4",
+  },
+  {
+    field: "dateOfBirth",
+    title: "Date of Birth",
+    type: "date",
+    className: "col-md-4",
+  },
   {
     field: "gender",
     title: "Gender",
     type: "select",
-    className: "col-md-6",
-
+    className: "col-md-4",
     options: [
-      {
-        label: "Male",
-        value: "MALE",
-      },
-      {
-        label: "Female",
-        value: "FEMALE",
-      },
-      {
-        label: "Other",
-        value: "OTHER",
-      },
+      { label: "Male", value: "MALE" },
+      { label: "Female", value: "FEMALE" },
+      { label: "Other", value: "OTHER" },
     ],
   },
-
   {
-    field: "mobileNumber",
-    title: "Mobile Number",
+    field: "medicareNumber",
+    title: "Medicare Number",
     type: "text",
-    className: "col-md-6",
+    className: "col-md-4",
   },
-
+  {
+    field: "medicareIrn",
+    title: "Medicare IRN",
+    type: "text",
+    className: "col-md-4",
+  },
   {
     field: "email",
     title: "Email",
     type: "text",
-    className: "col-md-6",
+    className: "col-md-4",
   },
-
   {
-    field: "bloodGroup",
-    title: "Blood Group",
-    type: "select",
-    className: "col-md-6",
-
-    options: [
-      { label: "A+", value: "A+" },
-      { label: "A-", value: "A-" },
-      { label: "B+", value: "B+" },
-      { label: "B-", value: "B-" },
-      { label: "AB+", value: "AB+" },
-      { label: "AB-", value: "AB-" },
-      { label: "O+", value: "O+" },
-      { label: "O-", value: "O-" },
-    ],
+    field: "phone",
+    title: "Phone",
+    type: "text",
+    className: "col-md-4",
+  },
+  {
+    field: "emergencyContactName",
+    title: "Emergency Contact Name",
+    type: "text",
+    className: "col-md-4",
+  },
+  {
+    field: "emergencyContactPhone",
+    title: "Emergency Contact Phone",
+    type: "text",
+    className: "col-md-4",
   },
 ];
