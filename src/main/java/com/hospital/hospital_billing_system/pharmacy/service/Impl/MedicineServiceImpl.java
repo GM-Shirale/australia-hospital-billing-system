@@ -158,7 +158,7 @@ public class MedicineServiceImpl implements MedicineService {
         medicine.setBrandName(request.getBrandName());
         medicine.setStrength(request.getStrength());
         medicine.setDosageForm(request.getDosageForm());
-        medicine.setRoute(request.getMedicineRoute());
+        medicine.setRoute(request.getRoute());
         medicine.setManufacturer(request.getManufacturer());
         medicine.setPbsItemCode(request.getPbsItemCode());
         medicine.setPrescriptionRequired(
@@ -207,6 +207,6 @@ log.info(
 );
 
 
-        return null;
+        return medicineMapper.toResponseDto(updatedMedicine);
     }
 }

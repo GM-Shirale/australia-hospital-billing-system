@@ -15,13 +15,14 @@ import java.util.List;
 
 @Slf4j
 @RestController
-@RequestMapping
+@RequestMapping("/api/pharmacy/medicines")
 @RequiredArgsConstructor
 public class MedicineController {
 
     private final MedicineService medicineService;
 
 
+    @PostMapping
     public ResponseEntity<MedicineResponseDto> createMedicine(
             @Valid @RequestBody MedicineRequestDto request
             ){
