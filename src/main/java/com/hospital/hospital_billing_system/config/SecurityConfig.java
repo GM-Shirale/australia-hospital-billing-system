@@ -66,6 +66,13 @@ public class SecurityConfig {
                                 "BILLING_STAFF"
                         )
 
+                        // Final bill PDF
+                        .requestMatchers("/api/bills/*/pdf")
+                        .hasAnyRole(
+                                "ADMIN",
+                                "BILLING_STAFF"
+                        )
+
                         // Bill APIs
                         .requestMatchers("/api/bills/**")
                         .hasAnyRole(
@@ -108,8 +115,7 @@ public class SecurityConfig {
                                 "BILLING_STAFF"
                         )
 
-                        // Bill items need additional business-level
-                        // authorization based on item type
+                        // Bill items need business-level authorization
                         .requestMatchers("/api/bill-items/**")
                         .hasAnyRole(
                                 "ADMIN",

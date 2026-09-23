@@ -40,6 +40,8 @@ public class Bill {
             cascade = CascadeType.ALL,
             orphanRemoval = true
     )
+
+
     @Builder.Default
     private List<BillItem> billItems = new ArrayList<>();
 
