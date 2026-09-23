@@ -15,20 +15,18 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/v1/insurance/policies")
 @RequiredArgsConstructor
-//@RequiredArgsConstructor
 public class InsurancePolicyController {
 
     private final InsurancePolicyService policyService;
-
-    public InsurancePolicyController(InsurancePolicyService policyService) {
-        this.policyService = policyService;
-    }
 
     @PostMapping
     public ResponseEntity<InsurancePolicyResponse> createPolicy(
             @RequestHeader("X-Tenant-ID") UUID tenantId,
             @Valid @RequestBody InsurancePolicyRequest request) {
-        InsurancePolicyResponse response = policyService.createPolicy(request, tenantId);
+
+        InsurancePolicyResponse response =
+                policyService.createPolicy(request, tenantId);
+
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
@@ -36,13 +34,19 @@ public class InsurancePolicyController {
     public ResponseEntity<InsurancePolicyResponse> getPolicyById(
             @RequestHeader("X-Tenant-ID") UUID tenantId,
             @PathVariable UUID policyId) {
-        return ResponseEntity.ok(policyService.getPolicyById(policyId, tenantId));
+
+        return ResponseEntity.ok(
+                policyService.getPolicyById(policyId, tenantId)
+        );
     }
 
     @GetMapping("/patient/{patientId}")
     public ResponseEntity<List<InsurancePolicyResponse>> getPoliciesByPatient(
             @RequestHeader("X-Tenant-ID") UUID tenantId,
             @PathVariable UUID patientId) {
-        return ResponseEntity.ok(policyService.getPoliciesByPatient(patientId, tenantId));
+
+        return ResponseEntity.ok(
+                policyService.getPoliciesByPatient(patientId, tenantId)
+        );
     }
 }
