@@ -15,9 +15,14 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/v1/insurance/policies")
 @RequiredArgsConstructor
+//@RequiredArgsConstructor
 public class InsurancePolicyController {
 
     private final InsurancePolicyService policyService;
+
+    public InsurancePolicyController(InsurancePolicyService policyService) {
+        this.policyService = policyService;
+    }
 
     @PostMapping
     public ResponseEntity<InsurancePolicyResponse> createPolicy(

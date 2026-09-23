@@ -1,5 +1,6 @@
 package com.hospital.hospital_billing_system.patient.service;
 
+import com.hospital.hospital_billing_system.common.enums.VerificationStatus;
 import com.hospital.hospital_billing_system.patient.dto.PatientDocumentRequest;
 import com.hospital.hospital_billing_system.patient.dto.PatientDocumentResponse;
 import com.hospital.hospital_billing_system.patient.dto.PatientDocumentUploadRequest;
@@ -30,4 +31,6 @@ public interface PatientDocumentService {
 
     // delete document
     void deleteDocument(Long documentId);
+
+    void updateVerificationStatus(Long documentId, VerificationStatus status);
 }

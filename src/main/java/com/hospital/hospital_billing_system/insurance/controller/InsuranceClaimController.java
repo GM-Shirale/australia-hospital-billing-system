@@ -14,10 +14,14 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/insurance/claims")
-@RequiredArgsConstructor
+//@RequiredArgsConstructor
 public class InsuranceClaimController {
 
     private final InsuranceClaimService claimService;
+
+    public InsuranceClaimController(InsuranceClaimService claimService) {
+        this.claimService = claimService;
+    }
 
     @PostMapping("/adjudicate")
     public ResponseEntity<ClaimResponse> adjudicateClaim(
