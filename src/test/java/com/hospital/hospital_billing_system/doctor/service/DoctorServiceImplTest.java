@@ -4,8 +4,8 @@ import com.hospital.hospital_billing_system.common.exception.DuplicateResourceEx
 import com.hospital.hospital_billing_system.common.exception.ResourceNotFoundException;
 import com.hospital.hospital_billing_system.department.entity.Department;
 import com.hospital.hospital_billing_system.department.repository.DepartmentRepository;
+import com.hospital.hospital_billing_system.doctor.dto.ChargeItemResponse;
 import com.hospital.hospital_billing_system.doctor.dto.DoctorConsultationChargeRequest;
-import com.hospital.hospital_billing_system.doctor.dto.DoctorConsultationChargeResponse;
 import com.hospital.hospital_billing_system.doctor.dto.DoctorRequest;
 import com.hospital.hospital_billing_system.doctor.dto.DoctorResponse;
 import com.hospital.hospital_billing_system.doctor.entity.Doctor;
@@ -125,7 +125,6 @@ class DoctorServiceImplTest {
                 .build();
 
         when(doctorRepository.existsByProviderNo("9999999Z")).thenReturn(false);
-        // Department ID exists, but does not match the requesting tenantId
         when(departmentRepository.findByDepartmentIdAndTenantId(departmentId, tenantId))
                 .thenReturn(Optional.empty());
 
@@ -139,29 +138,32 @@ class DoctorServiceImplTest {
         DoctorConsultationChargeRequest request = DoctorConsultationChargeRequest.builder()
                 .doctorId(doctorId)
                 .tenantId(tenantId)
-                .consultationFee(new BigDecimal("150.00"))
+                .mbsItemCode("MBS-104")
+                .feeAmount(new BigDecimal("150.00"))
                 .build();
 
         when(doctorRepository.findByDoctorIdAndTenantId(doctorId, tenantId))
                 .thenReturn(Optional.of(doctor));
 
-        DoctorConsultationChargeResponse response = doctorService.verifyAndCalculateConsultationCharge(request);
+        ChargeItemResponse response = doctorService.calculateConsultationCharge(request);
 
         assertNotNull(response);
-        assertTrue(response.isMbsBillable());
-        assertEquals("1234567A", response.getProviderNo());
-        assertEquals(new BigDecimal("150.00"), response.getConsultationFee());
+        assertEquals("DOCTOR_CONSULTATION", response.getItemType());
+        assertEquals("1234567A", response.getProviderNumber());
+        assertEquals(new BigDecimal("150.00"), response.getUnitPrice());
+        assertEquals(new BigDecimal("150.00"), response.getTotalPrice());
     }
 
     @Test
     @DisplayName("SRS FR-031: Should throw IllegalStateException when doctor lacks Medicare number for MBS charge")
     void shouldBlockConsultationChargeWhenMedicareNumberIsMissing() {
-        doctor.setProviderNo(null); // No Medicare Provider Number
+        doctor.setProviderNo(null);
 
         DoctorConsultationChargeRequest request = DoctorConsultationChargeRequest.builder()
                 .doctorId(doctorId)
                 .tenantId(tenantId)
-                .consultationFee(new BigDecimal("150.00"))
+                .mbsItemCode("MBS-104")
+                .feeAmount(new BigDecimal("150.00"))
                 .build();
 
         when(doctorRepository.findByDoctorIdAndTenantId(doctorId, tenantId))
@@ -169,9 +171,9 @@ class DoctorServiceImplTest {
 
         IllegalStateException exception = assertThrows(
                 IllegalStateException.class,
-                () -> doctorService.verifyAndCalculateConsultationCharge(request)
+                () -> doctorService.calculateConsultationCharge(request)
         );
 
-        assertTrue(exception.getMessage().contains("does not possess a valid Medicare Provider Number"));
+        assertTrue(exception.getMessage().contains("without an active Medicare Provider Number"));
     }
 }

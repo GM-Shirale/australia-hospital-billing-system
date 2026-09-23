@@ -1,0 +1,11 @@
+### 1. Create Department
+POST http://localhost:8082/api/v1/departments
+Content-Type: application/json
+X-Tenant-ID: a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d
+Authorization: Basic user f649ed05-38c4-4d87-978d-a908c143119d
+
+{
+  "tenantId": "a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d",
+  "departmentName": "Cardiology",
+  "location": "Building A, Floor 2"
+}

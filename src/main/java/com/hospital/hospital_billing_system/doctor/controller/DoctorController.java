@@ -1,7 +1,7 @@
 package com.hospital.hospital_billing_system.doctor.controller;
 
+import com.hospital.hospital_billing_system.doctor.dto.ChargeItemResponse;
 import com.hospital.hospital_billing_system.doctor.dto.DoctorConsultationChargeRequest;
-import com.hospital.hospital_billing_system.doctor.dto.DoctorConsultationChargeResponse;
 import com.hospital.hospital_billing_system.doctor.dto.DoctorRequest;
 import com.hospital.hospital_billing_system.doctor.dto.DoctorResponse;
 import com.hospital.hospital_billing_system.doctor.service.DoctorService;
@@ -96,9 +96,9 @@ public class DoctorController {
 
     // Endpoint consumed by Admissions / Billing to verify doctor eligibility and calculate consultation charge
     @PostMapping("/consultation-charge")
-    public ResponseEntity<DoctorConsultationChargeResponse> verifyConsultationCharge(
+    public ResponseEntity<ChargeItemResponse> calculateConsultationCharge(
             @Valid @RequestBody DoctorConsultationChargeRequest request) {
-        DoctorConsultationChargeResponse response = doctorService.verifyAndCalculateConsultationCharge(request);
+        ChargeItemResponse response = doctorService.calculateConsultationCharge(request);
         return ResponseEntity.ok(response);
     }
 }
