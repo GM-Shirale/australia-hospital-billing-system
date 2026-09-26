@@ -1,29 +1,230 @@
+```css
 :root {
-  --primary-color: #2563eb;
-  --primary-dark: #1d4ed8;
+  /* Hospital primary colors */
+  --primary-color: #0f766e;
+  --primary-dark: #115e59;
+  --primary-light: #f0fdfa;
 
-  --secondary-color: #0f766e;
+  /* Secondary */
+  --secondary-color: #2563eb;
+  --secondary-dark: #1d4ed8;
+  --secondary-light: #eff6ff;
 
+  /* Background */
   --background-color: #f8fafc;
   --card-color: #ffffff;
 
-  --border-color: #cbd5e1;
+  /* Border */
+  --border-color: #dce3ea;
+  --border-light: #e8eef3;
 
-  --text-color: #1e293b;
+  /* Text */
+  --text-color: #334155;
+  --heading-color: #1e293b;
   --muted-color: #64748b;
 
-  --success-color: #16a34a;
-  --warning-color: #d97706;
-  --danger-color: #dc2626;
+  /* Status */
+  --success-color: #198754;
+  --warning-color: #f59e0b;
+  --danger-color: #dc3545;
+
+  /* Form */
+  --input-focus-border: #0f766e;
+  --input-focus-shadow: rgba(15, 118, 110, 0.12);
+
+  /* Bootstrap */
+  --bs-primary: #0f766e;
+  --bs-primary-rgb: 15, 118, 110;
+  --bs-body-bg: #f8fafc;
+  --bs-body-color: #334155;
+  --bs-border-color: #dce3ea;
+}
+
+* {
+  box-sizing: border-box;
 }
 
 body {
   margin: 0;
   background-color: var(--background-color);
   color: var(--text-color);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: Inter, "Segoe UI", Arial, Helvetica, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
 }
 
-* {
-  box-sizing: border-box;
+/* -----------------------------------------
+   Headings
+----------------------------------------- */
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: var(--heading-color);
+  font-weight: 600;
 }
+
+/* -----------------------------------------
+   Primary Button
+----------------------------------------- */
+
+.btn-primary {
+  --bs-btn-color: #fff;
+  --bs-btn-bg: var(--primary-color);
+  --bs-btn-border-color: var(--primary-color);
+
+  --bs-btn-hover-color: #fff;
+  --bs-btn-hover-bg: var(--primary-dark);
+  --bs-btn-hover-border-color: var(--primary-dark);
+
+  --bs-btn-active-color: #fff;
+  --bs-btn-active-bg: var(--primary-dark);
+  --bs-btn-active-border-color: var(--primary-dark);
+
+  --bs-btn-disabled-color: #fff;
+  --bs-btn-disabled-bg: var(--primary-color);
+  --bs-btn-disabled-border-color: var(--primary-color);
+}
+
+:root {
+  --primary-color: #0F766E;
+  --primary-dark: #115E59;
+}
+
+/* -----------------------------------------
+   Forms
+----------------------------------------- */
+
+.form-label {
+  color: var(--heading-color);
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 5px;
+}
+
+.form-control,
+.form-select {
+  min-height: 38px;
+  border: 1px solid
+  border-radius: 6px;
+  background-color: #fff;
+  font-size: 14px;
+  box-shadow: none;
+}
+
+.form-control::placeholder {
+  color: #94a3b8;
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--input-focus-border);
+  box-shadow: 0 0 0 0.18rem var(--input-focus-shadow);
+}
+
+.form-control:disabled,
+.form-select:disabled {
+  background-color: #f1f5f9;
+  color: #64748b;
+}
+
+/* Validation */
+
+.form-control.is-invalid,
+.form-select.is-invalid {
+  border-color: var(--danger-color);
+}
+
+.invalid-feedback {
+  font-size: 12px;
+  margin-top: 3px;
+}
+
+/* -----------------------------------------
+   Form Field Spacing
+----------------------------------------- */
+
+.form-field {
+  margin-bottom: 8px;
+}
+
+/* -----------------------------------------
+   Cards
+----------------------------------------- */
+
+.card {
+  border-color: var(--border-light);
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
+}
+
+/* -----------------------------------------
+   Alerts
+----------------------------------------- */
+
+.alert {
+  border-radius: 6px;
+  font-size: 13px;
+}
+
+/* -----------------------------------------
+   Tables
+----------------------------------------- */
+
+.table {
+  color: var(--text-color);
+  font-size: 13px;
+}
+
+.table thead th {
+  background-color: var(--primary-light);
+  color: var(--primary-dark);
+  font-weight: 600;
+  border-bottom: 1px solid #ccfbf1;
+}
+
+.table tbody tr:hover {
+  background-color: #f8fafc;
+}
+
+/* -----------------------------------------
+   Links
+----------------------------------------- */
+
+a {
+  color: var(--primary-color);
+}
+
+a:hover {
+  color: var(--primary-dark);
+}
+
+/* -----------------------------------------
+   Date Picker
+----------------------------------------- */
+
+.react-datepicker-wrapper {
+  width: 100%;
+}
+
+.react-datepicker__input-container input {
+  width: 100%;
+}
+
+/* -----------------------------------------
+   Responsive
+----------------------------------------- */
+
+@media (max-width: 768px) {
+  body {
+    font-size: 13px;
+  }
+
+  .form-control,
+  .form-select {
+    min-height: 38px;
+  }
+}
+```

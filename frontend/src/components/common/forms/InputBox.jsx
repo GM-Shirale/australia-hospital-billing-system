@@ -24,11 +24,11 @@ const InputBox = (inputDetails) => {
   const Component = componentMap[type];
 
   if (!Component) {
-    return <p>Unsupported field type: {type}</p>;
+    return null;
   }
 
   return (
-    <div className="mb-3">
+    <div className="form-field">
       <Component
         {...inputDetails}
         error={errors?.[field]?.message}

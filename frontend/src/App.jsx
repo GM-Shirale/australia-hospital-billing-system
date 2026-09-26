@@ -1,7 +1,9 @@
-import PatientForm from "./pages/Patients/PatientForm";
+// frontend/src/App.jsx
+// App is now just an entry point — all routing lives in router.jsx
 
-function App() {
-  return <PatientForm />;
+import React from "react";
+import AppRouter from "./router";
+
+export default function App() {
+  return <AppRouter />;
 }
-
-export default App;

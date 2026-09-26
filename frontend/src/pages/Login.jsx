@@ -1,101 +1,169 @@
-import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { ShieldCheck, Lock, Mail, UserCheck } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { ShieldCheck, Lock, User } from 'lucide-react';
+
+import { adminLogin, userLogin, clearAuthError } from '../store/authSlice';
 
 export default function Login() {
-    const navigate = useNavigate();
-    const [email, setEmail] = useState('admin@hospital.com');
-    const [password, setPassword] = useState('password123');
-    const [role, setRole] = useState('ADMIN');
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
-    const handleLogin = (e) => {
-        e.preventDefault();
-        // User data session/localStorage madhe store kara
-        const userSession = {
-            email,
-            role,
-            tenantId: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
-            hospitalName: 'Sydney Central Hospital'
-        };
-        localStorage.setItem('currentUser', JSON.stringify(userSession));
+  const { isAuthenticated, loading, error } = useSelector((state) => state.auth);
 
-        // Dashboard var redirect kara
-        navigate('/');
-    };
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [loginType, setLoginType] = useState('ADMIN'); // ADMIN | USER
 
-    return (
-        <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
-            <div className="max-w-md w-full bg-white rounded-3xl p-8 border border-slate-200/80 shadow-lg space-y-6">
-                <div className="text-center space-y-2">
-                    <div className="inline-flex p-3 bg-blue-50 text-blue-600 rounded-2xl mb-1">
-                        <ShieldCheck className="w-8 h-8" />
-                    </div>
-                    <h2 className="text-2xl font-black text-slate-900">Hospital Staff Portal</h2>
-                    <p className="text-xs text-slate-500">Sign in to access MBS Clinical & Billing Services</p>
-                </div>
+  // If already logged in, go straight to patients
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/patients', { replace: true });
+    }
+  }, [isAuthenticated, navigate]);
 
-                <form onSubmit={handleLogin} className="space-y-4">
-                    <div>
-                        <label className="block text-xs font-bold text-slate-700 uppercase mb-1.5">Staff Email</label>
-                        <div className="relative">
-                            <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
-                            <input
-                                type="email"
-                                required
-                                className="w-full border border-slate-200 rounded-xl pl-10 pr-3.5 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                            />
-                        </div>
-                    </div>
+  // Clear any stale error when the user switches login type
+  useEffect(() => {
+    dispatch(clearAuthError());
+  }, [loginType, dispatch]);
 
-                    <div>
-                        <label className="block text-xs font-bold text-slate-700 uppercase mb-1.5">Password</label>
-                        <div className="relative">
-                            <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
-                            <input
-                                type="password"
-                                required
-                                className="w-full border border-slate-200 rounded-xl pl-10 pr-3.5 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                            />
-                        </div>
-                    </div>
+/*   const handleSubmit = (e) => {
+    e.preventDefault();
+    const credentials = { username, password };
+    if (loginType === 'ADMIN') {
+      dispatch(adminLogin(credentials));
+    } else {
+      dispatch(userLogin(credentials));
+    }
+  }; */
+const handleSubmit = (e) => {
+  e.preventDefault();
+  // Dev mode — no JWT check
+  localStorage.setItem('currentUser', JSON.stringify({
+    token: 'dev-token',
+    username: username,
+    role: loginType === 'ADMIN' ? 'ADMIN' : 'USER'
+  }));
+  navigate('/patients');
+};
 
-                    {/* <div>
-                        <label className="block text-xs font-bold text-slate-700 uppercase mb-1.5">Select Role (Demo Testing)</label>
-                        <div className="relative">
-                            <UserCheck className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
-                            <select
-                                className="w-full border border-slate-200 rounded-xl pl-10 pr-3.5 py-2.5 text-sm bg-white focus:ring-2 focus:ring-blue-500 outline-none font-medium"
-                                value={role}
-                                onChange={(e) => setRole(e.target.value)}
-                            >
-                                <option value="ADMIN">ADMIN (Full Control: All Modules)</option>
-                                <option value="DOCTOR">DOCTOR (Practitioners & Notes)</option>
-                                <option value="BILLING">BILLING CLERK (Rooms, Beds & Invoices)</option>
-                            </select>
-                        </div>
-                    </div> */}
-
-                    <button
-                        type="submit"
-                        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-xl text-sm transition shadow-sm"
-                    >
-                        Authorize & Sign In
-                    </button>
-                </form>
-
-                <div className="text-center pt-2 border-t border-slate-100">
-                    <p className="text-xs text-slate-500">
-                        Need staff registration?{' '}
-                        <Link to="/register" className="text-blue-600 font-bold hover:underline">
-                            Create Staff Account
-                        </Link>
-                    </p>
-                </div>
-            </div>
+  return (
+    <div
+      className="d-flex align-items-center justify-content-center min-vh-100"
+      style={{ background: '#f1f5f9' }}
+    >
+      <div
+        className="bg-white rounded-4 p-5 shadow"
+        style={{ width: '100%', maxWidth: 420 }}
+      >
+        {/* ── Logo / title ── */}
+        <div className="text-center mb-4">
+          <div
+            className="d-inline-flex align-items-center justify-content-center rounded-3 mb-3"
+            style={{ width: 56, height: 56, background: '#eff6ff' }}
+          >
+            <ShieldCheck size={28} color="#2563eb" />
+          </div>
+          <h4 className="fw-black mb-1">Hospital Staff Portal</h4>
+          <p className="text-muted small mb-0">
+            Sign in to access MBS Clinical &amp; Billing Services
+          </p>
         </div>
-    );
+
+        {/* ── Login type toggle ── */}
+        <div className="d-flex mb-4 rounded-3 overflow-hidden border">
+          <button
+            type="button"
+            className={`flex-fill py-2 border-0 fw-semibold small ${
+              loginType === 'ADMIN'
+                ? 'bg-primary text-white'
+                : 'bg-white text-muted'
+            }`}
+            onClick={() => setLoginType('ADMIN')}
+          >
+            Admin Login
+          </button>
+          <button
+            type="button"
+            className={`flex-fill py-2 border-0 fw-semibold small ${
+              loginType === 'USER'
+                ? 'bg-primary text-white'
+                : 'bg-white text-muted'
+            }`}
+            onClick={() => setLoginType('USER')}
+          >
+            Staff Login
+          </button>
+        </div>
+
+        {/* ── Error alert ── */}
+        {error && (
+          <div className="alert alert-danger py-2 small mb-3" role="alert">
+            {typeof error === 'string' ? error : 'Invalid username or password'}
+          </div>
+        )}
+
+        {/* ── Form ── */}
+        <form onSubmit={handleSubmit} noValidate>
+          <div className="mb-3">
+            <label className="form-label fw-semibold small text-uppercase text-muted">
+              Username
+            </label>
+            <div className="input-group">
+              <span className="input-group-text bg-light border-end-0">
+                <User size={16} className="text-muted" />
+              </span>
+              <input
+                type="text"
+                className="form-control border-start-0"
+                placeholder="Enter your username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                required
+                autoFocus
+              />
+            </div>
+          </div>
+
+          <div className="mb-4">
+            <label className="form-label fw-semibold small text-uppercase text-muted">
+              Password
+            </label>
+            <div className="input-group">
+              <span className="input-group-text bg-light border-end-0">
+                <Lock size={16} className="text-muted" />
+              </span>
+              <input
+                type="password"
+                className="form-control border-start-0"
+                placeholder="Enter your password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            className="btn btn-primary w-100 fw-bold py-2"
+            disabled={loading}
+          >
+            {loading ? (
+              <>
+                <span
+                  className="spinner-border spinner-border-sm me-2"
+                  role="status"
+                  aria-hidden="true"
+                />
+                Signing in...
+              </>
+            ) : (
+              'Sign In'
+            )}
+          </button>
+        </form>
+      </div>
+    </div>
+  );
 }

@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 
 const UseFormLabelInput = ({
   title,
@@ -6,28 +6,26 @@ const UseFormLabelInput = ({
   register,
   error,
   disable = false,
-  type = "text",
+  required = false,
+  type = 'text',
+  placeholder = '',
 }) => {
   return (
     <div>
       <label className="form-label">
         {title}
+        {required && <span className="text-danger ms-1">*</span>}
       </label>
 
       <input
         type={type}
-        className={`form-control ${
-          error ? "is-invalid" : ""
-        }`}
-        {...register(field)}
+        className={`form-control ${error ? 'is-invalid' : ''}`}
+        placeholder={placeholder}
         disabled={disable}
+        {...register(field)}
       />
 
-      {error && (
-        <div className="invalid-feedback">
-          {error}
-        </div>
-      )}
+      {error && <div className="invalid-feedback">{error}</div>}
     </div>
   );
 };

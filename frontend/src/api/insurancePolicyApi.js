@@ -1,5 +1,5 @@
 import axiosClient from '../services/axiosClient';
-import API_URLS from './urls';
+import API_URLS from './url';
 
 const insurancePolicyApi = {
     create: (data) =>
