@@ -1,63 +1,80 @@
-import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+// frontend/src/pages/users/UserList.jsx
+
+import React, { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import {
   fetchAllUsers,
   deleteUser,
   activateUser,
   deactivateUser,
-  clearUserError,
-} from "../../store/userSlice";
+  setSelectedUser,
+  clearUserMessages,
+} from '../../store/userSlice';
 
-// Role badge colours
-const roleBadge = {
-  RECEPTIONIST: "bg-info text-dark",
-  DOCTOR: "bg-primary",
-  BILLING_STAFF: "bg-warning text-dark",
-  LAB_STAFF: "bg-secondary",
-  PHARMACY_STAFF: "bg-success",
+// ── Role badge colours ───────────────────────────────
+const ROLE_COLOURS = {
+  DOCTOR:           { bg: '#eff6ff', color: '#1d4ed8', border: '#bfdbfe' },
+  BILLING_STAFF:    { bg: '#fefce8', color: '#a16207', border: '#fde68a' },
+  LAB_STAFF:        { bg: '#f0fdf4', color: '#15803d', border: '#bbf7d0' },
+  PHARMACY_STAFF:   { bg: '#fdf4ff', color: '#7e22ce', border: '#e9d5ff' },
+  RECEPTIONIST:     { bg: '#fff7ed', color: '#c2410c', border: '#fed7aa' },
 };
 
-const roleLabel = {
-  RECEPTIONIST: "Receptionist",
-  DOCTOR: "Doctor",
-  BILLING_STAFF: "Billing Staff",
-  LAB_STAFF: "Lab Staff",
-  PHARMACY_STAFF: "Pharmacy Staff",
+const ROLE_LABELS = {
+  DOCTOR:           'Doctor',
+  BILLING_STAFF:    'Billing Staff',
+  LAB_STAFF:        'Lab Staff',
+  PHARMACY_STAFF:   'Pharmacy Staff',
+  RECEPTIONIST:     'Receptionist',
 };
 
-const UserList = () => {
+function RoleBadge({ role }) {
+  const style = ROLE_COLOURS[role] || { bg: '#f1f5f9', color: '#475569', border: '#cbd5e1' };
+  return (
+    <span style={{
+      padding: '2px 10px', borderRadius: 20, fontSize: 11, fontWeight: 700,
+      background: style.bg, color: style.color, border: `1px solid ${style.border}`,
+    }}>
+      {ROLE_LABELS[role] || role}
+    </span>
+  );
+}
+
+function StatusBadge({ active }) {
+  return active
+    ? <span className="badge bg-success">Active</span>
+    : <span className="badge bg-secondary">Inactive</span>;
+}
+
+export default function UserList() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { users, loading, deleteLoading, error } = useSelector(
-    (s) => s.user
-  );
+  const { users, loading, deleteLoading, error, successMessage } = useSelector((s) => s.user);
 
-  const [search, setSearch] = useState("");
-  const [filterRole, setFilterRole] = useState("");
-  const [confirmDelete, setConfirmDelete] = useState(null); // userId to delete
+  const [search, setSearch]       = useState('');
+  const [roleFilter, setRoleFilter] = useState('');
+  const [confirmId, setConfirmId] = useState(null);
 
   useEffect(() => {
     dispatch(fetchAllUsers());
   }, [dispatch]);
 
-  // ---- filter ----
-  const filtered = users.filter((u) => {
-    const q = search.toLowerCase();
-    const matchSearch =
-      u.username?.toLowerCase().includes(q) ||
-      u.email?.toLowerCase().includes(q);
-    const matchRole = filterRole ? u.role === filterRole : true;
-    return matchSearch && matchRole;
-  });
+  useEffect(() => {
+    return () => { dispatch(clearUserMessages()); };
+  }, [dispatch]);
 
-  // ---- handlers ----
-  const handleDelete = (userId) => {
-    dispatch(deleteUser(userId));
-    setConfirmDelete(null);
+  const handleEdit = (user) => {
+    dispatch(setSelectedUser(user));
+    navigate(`/users/${user.userId}/edit`);
   };
 
-  const handleToggleStatus = (user) => {
+  const handleDelete = () => {
+    if (!confirmId) return;
+    dispatch(deleteUser(confirmId)).then(() => setConfirmId(null));
+  };
+
+  const handleToggleActive = (user) => {
     if (user.active) {
       dispatch(deactivateUser(user.userId));
     } else {
@@ -65,213 +82,203 @@ const UserList = () => {
     }
   };
 
+  // ── Filter logic ──────────────────────────────────
+  const filtered = users.filter((u) => {
+    const q = search.toLowerCase();
+    const matchesSearch =
+      u.username?.toLowerCase().includes(q) ||
+      u.email?.toLowerCase().includes(q) ||
+      ROLE_LABELS[u.role]?.toLowerCase().includes(q);
+    const matchesRole = !roleFilter || u.role === roleFilter;
+    return matchesSearch && matchesRole;
+  });
+
   return (
-    <div className="container-fluid py-4">
-      {/* Header */}
-      <div className="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      {/* ── Header ── */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
         <div>
-          <h4 className="mb-0 fw-bold">User Management</h4>
-          <small className="text-muted">
-            Manage staff accounts and role assignments
-          </small>
+          <h5 style={{ margin: 0, fontWeight: 700, color: '#0f172a' }}>User Management</h5>
+          <p style={{ margin: 0, fontSize: 13, color: '#64748b' }}>Manage hospital staff accounts and roles</p>
         </div>
         <button
-          className="btn btn-primary"
-          onClick={() => navigate("/users/new")}
+          onClick={() => navigate('/users/new')}
+          style={{
+            padding: '8px 20px', borderRadius: 8, border: 'none',
+            background: '#2563eb', color: '#fff', fontWeight: 600,
+            fontSize: 13, cursor: 'pointer',
+          }}
         >
-          + Register New User
+          + Add User
         </button>
       </div>
 
-      {/* Error alert */}
+      {/* ── Alerts ── */}
       {error && (
-        <div
-          className="alert alert-danger alert-dismissible"
-          role="alert"
-        >
-          {error}
-          <button
-            type="button"
-            className="btn-close"
-            onClick={() => dispatch(clearUserError())}
-          />
+        <div className="alert alert-danger alert-dismissible" role="alert" style={{ marginBottom: 16 }}>
+          {typeof error === 'string' ? error : 'An error occurred.'}
+          <button type="button" className="btn-close" onClick={() => dispatch(clearUserMessages())} />
+        </div>
+      )}
+      {successMessage && (
+        <div className="alert alert-success" role="alert" style={{ marginBottom: 16 }}>
+          {successMessage}
         </div>
       )}
 
-      {/* Filters */}
-      <div className="card mb-4 border-0 shadow-sm">
-        <div className="card-body py-3">
-          <div className="row g-3">
-            <div className="col-md-6">
-              <input
-                type="text"
-                className="form-control"
-                placeholder="Search by username or email..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
-            </div>
-            <div className="col-md-4">
-              <select
-                className="form-select"
-                value={filterRole}
-                onChange={(e) => setFilterRole(e.target.value)}
-              >
-                <option value="">All Roles</option>
-                <option value="RECEPTIONIST">Receptionist</option>
-                <option value="DOCTOR">Doctor</option>
-                <option value="BILLING_STAFF">Billing Staff</option>
-                <option value="LAB_STAFF">Lab Staff</option>
-                <option value="PHARMACY_STAFF">Pharmacy Staff</option>
-              </select>
-            </div>
-            <div className="col-md-2 d-flex align-items-center">
-              <small className="text-muted">
-                {filtered.length} user{filtered.length !== 1 ? "s" : ""}
-              </small>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Table */}
-      <div className="card border-0 shadow-sm">
-        <div className="card-body p-0">
-          {loading ? (
-            <div className="text-center py-5">
-              <div className="spinner-border text-primary" role="status" />
-              <p className="mt-2 text-muted">Loading users...</p>
-            </div>
-          ) : filtered.length === 0 ? (
-            <div className="text-center py-5 text-muted">
-              <p className="mb-0">No users found.</p>
-            </div>
-          ) : (
-            <div className="table-responsive">
-              <table className="table table-hover mb-0 align-middle">
-                <thead className="table-light">
-                  <tr>
-                    <th>#</th>
-                    <th>Username</th>
-                    <th>Email</th>
-                    <th>Role</th>
-                    <th>Status</th>
-                    <th className="text-end">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filtered.map((user, idx) => (
-                    <tr key={user.userId}>
-                      <td className="text-muted">{idx + 1}</td>
-                      <td className="fw-semibold">{user.username}</td>
-                      <td>{user.email}</td>
-                      <td>
-                        <span
-                          className={`badge rounded-pill ${
-                            roleBadge[user.role] || "bg-secondary"
-                          }`}
-                        >
-                          {roleLabel[user.role] || user.role}
-                        </span>
-                      </td>
-                      <td>
-                        <span
-                          className={`badge ${
-                            user.active ? "bg-success" : "bg-danger"
-                          }`}
-                        >
-                          {user.active ? "Active" : "Inactive"}
-                        </span>
-                      </td>
-                      <td className="text-end">
-                        {/* Toggle Active/Inactive */}
-                        <button
-                          className={`btn btn-sm me-1 ${
-                            user.active
-                              ? "btn-outline-warning"
-                              : "btn-outline-success"
-                          }`}
-                          title={user.active ? "Deactivate" : "Activate"}
-                          onClick={() => handleToggleStatus(user)}
-                        >
-                          {user.active ? "Deactivate" : "Activate"}
-                        </button>
-
-                        {/* Edit */}
-                        <button
-                          className="btn btn-sm btn-outline-primary me-1"
-                          onClick={() =>
-                            navigate(`/users/${user.userId}/edit`)
-                          }
-                        >
-                          Edit
-                        </button>
-
-                        {/* Delete */}
-                        <button
-                          className="btn btn-sm btn-outline-danger"
-                          onClick={() => setConfirmDelete(user.userId)}
-                          disabled={!!deleteLoading[user.userId]}
-                        >
-                          {deleteLoading[user.userId] ? (
-                            <span
-                              className="spinner-border spinner-border-sm"
-                              role="status"
-                            />
-                          ) : (
-                            "Delete"
-                          )}
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Delete Confirm Modal */}
-      {confirmDelete && (
-        <div
-          className="modal show d-block"
-          style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
+      {/* ── Filters ── */}
+      <div style={{ display: 'flex', gap: 12, marginBottom: 16 }}>
+        <input
+          className="form-control form-control-sm"
+          style={{ maxWidth: 280 }}
+          placeholder="Search by name or email…"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+        <select
+          className="form-select form-select-sm"
+          style={{ maxWidth: 200 }}
+          value={roleFilter}
+          onChange={(e) => setRoleFilter(e.target.value)}
         >
-          <div className="modal-dialog modal-dialog-centered">
-            <div className="modal-content">
-              <div className="modal-header">
-                <h5 className="modal-title">Confirm Delete</h5>
-                <button
-                  type="button"
-                  className="btn-close"
-                  onClick={() => setConfirmDelete(null)}
-                />
-              </div>
-              <div className="modal-body">
-                Are you sure you want to delete this user? This action
-                cannot be undone.
-              </div>
-              <div className="modal-footer">
-                <button
-                  className="btn btn-secondary"
-                  onClick={() => setConfirmDelete(null)}
-                >
-                  Cancel
-                </button>
-                <button
-                  className="btn btn-danger"
-                  onClick={() => handleDelete(confirmDelete)}
-                >
-                  Delete
-                </button>
-              </div>
+          <option value="">All Roles</option>
+          {Object.entries(ROLE_LABELS).map(([val, label]) => (
+            <option key={val} value={val}>{label}</option>
+          ))}
+        </select>
+      </div>
+
+      {/* ── Table ── */}
+      <div style={{
+        background: '#fff', border: '1px solid #e2e8f0',
+        borderRadius: 12, overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+      }}>
+        {loading ? (
+          <div style={{ padding: 40, textAlign: 'center', color: '#64748b' }}>
+            <span className="spinner-border spinner-border-sm me-2" />
+            Loading users…
+          </div>
+        ) : filtered.length === 0 ? (
+          <div style={{ padding: 40, textAlign: 'center', color: '#94a3b8', fontSize: 14 }}>
+            No users found.
+          </div>
+        ) : (
+          <table className="table table-hover mb-0" style={{ fontSize: 13 }}>
+            <thead style={{ background: '#f8fafc' }}>
+              <tr>
+                <th style={{ padding: '12px 16px', fontWeight: 600, color: '#475569', border: 'none' }}>#</th>
+                <th style={{ padding: '12px 16px', fontWeight: 600, color: '#475569', border: 'none' }}>Username</th>
+                <th style={{ padding: '12px 16px', fontWeight: 600, color: '#475569', border: 'none' }}>Email</th>
+                <th style={{ padding: '12px 16px', fontWeight: 600, color: '#475569', border: 'none' }}>Role</th>
+                <th style={{ padding: '12px 16px', fontWeight: 600, color: '#475569', border: 'none' }}>Status</th>
+                <th style={{ padding: '12px 16px', fontWeight: 600, color: '#475569', border: 'none', textAlign: 'right' }}>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.map((user, idx) => (
+                <tr key={user.userId}>
+                  <td style={{ padding: '12px 16px', color: '#94a3b8' }}>{idx + 1}</td>
+                  <td style={{ padding: '12px 16px', fontWeight: 600, color: '#0f172a' }}>{user.username}</td>
+                  <td style={{ padding: '12px 16px', color: '#475569' }}>{user.email || '—'}</td>
+                  <td style={{ padding: '12px 16px' }}><RoleBadge role={user.role} /></td>
+                  <td style={{ padding: '12px 16px' }}><StatusBadge active={user.active} /></td>
+                  <td style={{ padding: '12px 16px', textAlign: 'right' }}>
+                    <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
+                      {/* Toggle active/inactive */}
+                      <button
+                        onClick={() => handleToggleActive(user)}
+                        title={user.active ? 'Deactivate' : 'Activate'}
+                        style={{
+                          padding: '4px 10px', fontSize: 11, borderRadius: 6, cursor: 'pointer',
+                          border: `1px solid ${user.active ? '#fde68a' : '#bbf7d0'}`,
+                          background: user.active ? '#fefce8' : '#f0fdf4',
+                          color: user.active ? '#a16207' : '#15803d',
+                          fontWeight: 600,
+                        }}
+                      >
+                        {user.active ? 'Deactivate' : 'Activate'}
+                      </button>
+
+                      {/* Edit */}
+                      <button
+                        onClick={() => handleEdit(user)}
+                        style={{
+                          padding: '4px 10px', fontSize: 11, borderRadius: 6, cursor: 'pointer',
+                          border: '1px solid #bfdbfe', background: '#eff6ff', color: '#1d4ed8', fontWeight: 600,
+                        }}
+                      >
+                        Edit
+                      </button>
+
+                      {/* Delete */}
+                      <button
+                        onClick={() => setConfirmId(user.userId)}
+                        disabled={deleteLoading}
+                        style={{
+                          padding: '4px 10px', fontSize: 11, borderRadius: 6, cursor: 'pointer',
+                          border: '1px solid #fecaca', background: '#fef2f2', color: '#dc2626', fontWeight: 600,
+                        }}
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+
+      {/* ── Delete Confirm Modal ── */}
+      {confirmId && (
+        <div
+          style={{
+            position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 999,
+          }}
+          onClick={() => setConfirmId(null)}
+        >
+          <div
+            style={{
+              background: '#fff', borderRadius: 12, padding: 28, maxWidth: 400, width: '90%',
+              boxShadow: '0 20px 60px rgba(0,0,0,0.2)',
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h6 style={{ fontWeight: 700, color: '#0f172a', marginBottom: 8 }}>Delete User?</h6>
+            <p style={{ fontSize: 13, color: '#64748b', marginBottom: 20 }}>
+              This action cannot be undone. The user account will be permanently removed.
+            </p>
+            <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
+              <button
+                onClick={() => setConfirmId(null)}
+                style={{
+                  padding: '8px 18px', borderRadius: 8,
+                  border: '1px solid #e2e8f0', background: '#fff',
+                  cursor: 'pointer', fontSize: 13, color: '#475569',
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDelete}
+                disabled={deleteLoading}
+                style={{
+                  padding: '8px 18px', borderRadius: 8, border: 'none',
+                  background: '#dc2626', color: '#fff',
+                  cursor: deleteLoading ? 'not-allowed' : 'pointer',
+                  fontSize: 13, fontWeight: 600, opacity: deleteLoading ? 0.7 : 1,
+                }}
+              >
+                {deleteLoading ? (
+                  <><span className="spinner-border spinner-border-sm me-2" />Deleting…</>
+                ) : 'Delete'}
+              </button>
             </div>
           </div>
         </div>
       )}
     </div>
   );
-};
-
-export default UserList;
+}

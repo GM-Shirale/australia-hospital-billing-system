@@ -1,296 +1,216 @@
-import React, { useEffect } from "react";
-import { useForm } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
-import * as yup from "yup";
-import { useDispatch, useSelector } from "react-redux";
-import { useNavigate, useParams } from "react-router-dom";
+// frontend/src/pages/users/UserForm.jsx
 
-import FormBox from "../../components/common/forms/FormBox";
-import {
-  userCredentialFields,
-  userPasswordFields,
-  userRoleFields,
-} from "../../data/userFormData";
+import React, { useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
+import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate, useParams } from 'react-router-dom';
+
+import FormBox from '../../components/common/forms/FormBox';
 import {
   createUser,
   updateUser,
   fetchUserById,
-  clearUserError,
-  clearUserSuccess,
-  clearSelectedUser,
-} from "../../store/userSlice";
+  clearUserMessages,
+} from '../../store/userSlice';
 
-// =============================================
-// Validation schema
-// =============================================
-const createSchema = yup.object({
-  username: yup
-    .string()
-    .required("Username is required")
-    .min(3, "Minimum 3 characters")
-    .max(50, "Maximum 50 characters"),
-  email: yup
-    .string()
-    .required("Email is required")
-    .email("Enter a valid email"),
-  password: yup
-    .string()
-    .required("Password is required")
-    .min(6, "Minimum 6 characters"),
-  confirmPassword: yup
-    .string()
-    .required("Please confirm password")
-    .oneOf([yup.ref("password")], "Passwords do not match"),
-  role: yup.string().required("Role is required"),
-  active: yup.string().required("Status is required"),
-});
+import {
+  userCredentialFields,
+  userPasswordFields,
+  userRoleFields,
+} from '../../data/userFormData';
 
-const editSchema = yup.object({
-  username: yup
-    .string()
-    .required("Username is required")
-    .min(3, "Minimum 3 characters")
-    .max(50, "Maximum 50 characters"),
-  email: yup
-    .string()
-    .required("Email is required")
-    .email("Enter a valid email"),
-  password: yup.string().nullable().transform((v) => v || undefined),
-  confirmPassword: yup
-    .string()
-    .nullable()
-    .when("password", {
-      is: (val) => val && val.length > 0,
-      then: (schema) =>
-        schema
-          .required("Please confirm password")
-          .oneOf([yup.ref("password")], "Passwords do not match"),
-    }),
-  role: yup.string().required("Role is required"),
-  active: yup.string().required("Status is required"),
-});
+import { userValidationSchema, userDefaultValues } from './userValidation';
 
-// =============================================
-// UserForm component
-// =============================================
-const UserForm = () => {
+export default function UserForm() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { userId } = useParams();
+  const isEdit = Boolean(userId);
 
-  const isEdit = !!userId;
-
-  const { loading, error, successMessage, selectedUser } = useSelector(
-    (s) => s.user
-  );
+  const { selectedUser, formLoading, error, successMessage } = useSelector((s) => s.user);
 
   const {
     register,
     handleSubmit,
+    reset,
     watch,
     setValue,
-    reset,
     formState: { errors },
   } = useForm({
-    resolver: yupResolver(isEdit ? editSchema : createSchema),
-    defaultValues: {
-      username: "",
-      email: "",
-      password: "",
-      confirmPassword: "",
-      role: "",
-      active: "true",
-    },
+    resolver: yupResolver(userValidationSchema),
+    context: { isEdit },
+    defaultValues: userDefaultValues,
   });
 
-  // Load user data when editing
+  // ── Load user on edit mode
   useEffect(() => {
-    if (isEdit) {
-      dispatch(fetchUserById(Number(userId)));
-    }
-    return () => {
-      dispatch(clearSelectedUser());
-    };
-  }, [dispatch, isEdit, userId]);
+    if (isEdit) dispatch(fetchUserById(userId));
+  }, [isEdit, userId, dispatch]);
 
-  // Populate form when selectedUser loads
+  // ── Populate form when user data arrives
   useEffect(() => {
-    if (isEdit && selectedUser) {
+    if (isEdit && selectedUser && String(selectedUser.userId) === String(userId)) {
       reset({
-        username: selectedUser.username || "",
-        email: selectedUser.email || "",
-        password: "",
-        confirmPassword: "",
-        role: selectedUser.role || "",
-        active: String(selectedUser.active ?? "true"),
+        username:        selectedUser.username  || '',
+        email:           selectedUser.email     || '',
+        password:        '',           // never pre-fill passwords
+        confirmPassword: '',
+        role:            selectedUser.role   || '',
+        active:          selectedUser.active !== false ? 'true' : 'false',
       });
     }
-  }, [selectedUser, isEdit, reset]);
+  }, [selectedUser, isEdit, userId, reset]);
 
-  // Navigate on success
+  // ── Redirect after successful save
   useEffect(() => {
     if (successMessage) {
-      dispatch(clearUserSuccess());
-      navigate("/users");
+      const t = setTimeout(() => {
+        dispatch(clearUserMessages());
+        navigate('/users');
+      }, 1200);
+      return () => clearTimeout(t);
     }
   }, [successMessage, dispatch, navigate]);
 
-  // Clear error on unmount
+  // ── Clear messages on unmount
   useEffect(() => {
-    return () => {
-      dispatch(clearUserError());
-    };
+    return () => { dispatch(clearUserMessages()); };
   }, [dispatch]);
 
-  // ---- submit ----
-  const onSubmit = (data) => {
+  // ── Submit handler
+  const onSubmit = (formData) => {
     const payload = {
-      username: data.username,
-      email: data.email,
-      role: data.role,
-      active: data.active === "true",
+      username: formData.username,
+      email:    formData.email,
+      role:     formData.role,
+      active:   formData.active === 'true',
     };
 
-    if (data.password) {
-      payload.password = data.password;
+    // Only include password if provided (for edit, leave blank = keep existing)
+    if (formData.password) {
+      payload.password = formData.password;
     }
 
     if (isEdit) {
-      dispatch(updateUser({ userId: Number(userId), data: payload }));
+      dispatch(updateUser({ userId, data: payload }));
     } else {
-      payload.password = data.password; // required for create
       dispatch(createUser(payload));
     }
   };
 
-  // ---- section-level error helper (for FormBox) ----
-  const sectionErrors = (fields) => {
-    const out = {};
-    fields.forEach((f) => {
-      if (errors[f.field]) out[f.field] = errors[f.field];
-    });
-    return out;
-  };
+  const sharedProps = { register, watch, setValue, errors };
 
   return (
-    <div className="container py-4" style={{ maxWidth: 800 }}>
-      {/* Breadcrumb */}
-      <nav aria-label="breadcrumb" className="mb-3">
-        <ol className="breadcrumb">
-          <li className="breadcrumb-item">
-            <button
-              className="btn btn-link p-0 text-decoration-none"
-              onClick={() => navigate("/users")}
-            >
-              User Management
-            </button>
-          </li>
-          <li className="breadcrumb-item active">
-            {isEdit ? "Edit User" : "Register New User"}
-          </li>
-        </ol>
-      </nav>
+    <div style={{ maxWidth: 860, margin: '0 auto' }}>
 
-      <h4 className="fw-bold mb-4">
-        {isEdit ? "Edit User" : "Register New User"}
-      </h4>
+      {/* ── Page header ── */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
+        <button
+          type="button"
+          onClick={() => navigate('/users')}
+          style={{
+            background: 'none', border: '1px solid #cbd5e1',
+            borderRadius: 8, padding: '5px 12px',
+            fontSize: 13, cursor: 'pointer', color: '#475569',
+          }}
+        >
+          ← Back
+        </button>
+        <h5 style={{ margin: 0, fontWeight: 700, color: '#0f172a' }}>
+          {isEdit ? 'Edit User' : 'Add New User'}
+        </h5>
+      </div>
 
-      {/* Error alert */}
+      {/* ── Alerts ── */}
       {error && (
-        <div className="alert alert-danger alert-dismissible" role="alert">
-          {error}
-          <button
-            type="button"
-            className="btn-close"
-            onClick={() => dispatch(clearUserError())}
-          />
+        <div className="alert alert-danger alert-dismissible" role="alert" style={{ marginBottom: 16 }}>
+          {typeof error === 'string' ? error : 'An error occurred. Please try again.'}
+          <button type="button" className="btn-close" onClick={() => dispatch(clearUserMessages())} />
+        </div>
+      )}
+      {successMessage && (
+        <div className="alert alert-success" role="alert" style={{ marginBottom: 16 }}>
+          {successMessage}
         </div>
       )}
 
       <form onSubmit={handleSubmit(onSubmit)} noValidate>
 
-        {/* ---- Section 1: Account Details ---- */}
-        <div className="card border-0 shadow-sm mb-4">
-          <div className="card-header bg-white fw-semibold py-3">
-            Account Details
-          </div>
-          <div className="card-body">
-            <FormBox
-              options={userCredentialFields}
-              register={register}
-              watch={watch}
-              setValue={setValue}
-              errors={errors}
-            />
-          </div>
-        </div>
+        <Section title="Account Information">
+          <FormBox options={userCredentialFields} {...sharedProps} />
+        </Section>
 
-        {/* ---- Section 2: Password ---- */}
-        <div className="card border-0 shadow-sm mb-4">
-          <div className="card-header bg-white fw-semibold py-3">
-            {isEdit
-              ? "Change Password (leave blank to keep current)"
-              : "Set Password"}
-          </div>
-          <div className="card-body">
-            <FormBox
-              options={userPasswordFields}
-              register={register}
-              watch={watch}
-              setValue={setValue}
-              errors={errors}
-            />
-          </div>
-        </div>
+        <Section title="Password" color="#475569">
+          {isEdit && (
+            <p style={{ fontSize: 12, color: '#64748b', marginBottom: 12 }}>
+              Leave the password fields blank to keep the existing password.
+            </p>
+          )}
+          <FormBox options={userPasswordFields} {...sharedProps} />
+        </Section>
 
-        {/* ---- Section 3: Role & Status ---- */}
-        <div className="card border-0 shadow-sm mb-4">
-          <div className="card-header bg-white fw-semibold py-3">
-            Role & Status
-          </div>
-          <div className="card-body">
-            <FormBox
-              options={userRoleFields}
-              register={register}
-              watch={watch}
-              setValue={setValue}
-              errors={errors}
-            />
-          </div>
-        </div>
+        <Section title="Role & Status">
+          <FormBox options={userRoleFields} {...sharedProps} />
+        </Section>
 
-        {/* ---- Actions ---- */}
-        <div className="d-flex justify-content-end gap-2">
+        {/* ── Actions ── */}
+        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, paddingBottom: 32 }}>
           <button
             type="button"
-            className="btn btn-outline-secondary"
-            onClick={() => navigate("/users")}
+            onClick={() => navigate('/users')}
+            disabled={formLoading}
+            style={{
+              padding: '8px 20px', borderRadius: 8,
+              border: '1px solid #cbd5e1', background: '#fff',
+              cursor: 'pointer', fontSize: 14, color: '#475569',
+            }}
           >
             Cancel
           </button>
           <button
             type="submit"
-            className="btn btn-primary"
-            disabled={loading}
+            disabled={formLoading}
+            style={{
+              padding: '8px 28px', borderRadius: 8, border: 'none',
+              background: '#2563eb', color: '#fff',
+              cursor: formLoading ? 'not-allowed' : 'pointer',
+              fontSize: 14, fontWeight: 600, opacity: formLoading ? 0.7 : 1,
+            }}
           >
-            {loading ? (
+            {formLoading ? (
               <>
-                <span
-                  className="spinner-border spinner-border-sm me-2"
-                  role="status"
-                />
-                {isEdit ? "Saving..." : "Registering..."}
+                <span className="spinner-border spinner-border-sm me-2" role="status" />
+                {isEdit ? 'Updating...' : 'Creating...'}
               </>
-            ) : isEdit ? (
-              "Save Changes"
-            ) : (
-              "Register User"
-            )}
+            ) : isEdit ? 'Update User' : 'Create User'}
           </button>
         </div>
       </form>
     </div>
   );
-};
+}
 
-export default UserForm;
+// ── Section card helper ───────────────────────────────
+function Section({ title, color = '#2563eb', children }) {
+  return (
+    <div style={{
+      background: '#fff',
+      border: '1px solid #e2e8f0',
+      borderRadius: 10,
+      marginBottom: 20,
+      boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+      overflow: 'hidden',
+    }}>
+      <div style={{
+        background: color, color: '#fff',
+        padding: '10px 20px', fontWeight: 600, fontSize: 14,
+      }}>
+        {title}
+      </div>
+      <div style={{ padding: '20px' }}>
+        {children}
+      </div>
+    </div>
+  );
+}

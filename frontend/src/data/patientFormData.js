@@ -1,109 +1,96 @@
-export const patientFields = [
-  {
-    field: "firstName",
-    title: "First Name",
-    type: "text",
-    required: true,
-    placeholder: "Enter first name",
-    className: "col-12 col-md-4",
-  },
+// ─── Patient form field definitions ─────────────────────────────────────────
+// Used by FormBox → InputBox → UseFormLabelInput / UseFormSelect / UseDate
+// Field names MUST match PatientRequest Java DTO exactly.
 
+export const patientNameFields = [
   {
-    field: "middleName",
-    title: "Middle Name",
-    type: "text",
-    placeholder: "Enter middle name",
-    className: "col-12 col-md-4",
-  },
-
-  {
-    field: "lastName",
-    title: "Last Name",
-    type: "text",
+    field: 'firstName',
+    title: 'First Name',
+    type: 'text',
+    className: 'col-md-4',
     required: true,
-    placeholder: "Enter last name",
-    className: "col-12 col-md-4",
   },
-
   {
-    field: "dateOfBirth",
-    title: "Date of Birth",
-    type: "date",
-    required: true,
-    className: "col-12 col-md-4",
+    field: 'middleName',
+    title: 'Middle Name',
+    type: 'text',
+    className: 'col-md-4',
   },
-
   {
-    field: "gender",
-    title: "Gender",
-    type: "select",
+    field: 'lastName',
+    title: 'Last Name',
+    type: 'text',
+    className: 'col-md-4',
     required: true,
-    className: "col-12 col-md-4",
+  },
+];
+
+export const patientDemographicFields = [
+  {
+    field: 'dateOfBirth',
+    title: 'Date of Birth',
+    type: 'date',
+    className: 'col-md-4',
+    required: true,
+    maxDate: new Date(),
+  },
+  {
+    field: 'gender',
+    title: 'Gender',
+    type: 'select',
+    className: 'col-md-4',
+    required: true,
+    // Matches backend Gender enum exactly: MALE | FEMALE | OTHER | NOT_SPECIFIED
     options: [
-      {
-        value: "MALE",
-        label: "Male",
-      },
-      {
-        value: "FEMALE",
-        label: "Female",
-      },
-      {
-        value: "OTHER",
-        label: "Other",
-      },
-      {
-        value: "NOT_SPECIFIED",
-        label: "Not Specified",
-      },
+      { label: 'Male', value: 'MALE' },
+      { label: 'Female', value: 'FEMALE' },
+      { label: 'Other', value: 'OTHER' },
+      { label: 'Not Specified', value: 'NOT_SPECIFIED' },
     ],
   },
+];
 
+export const patientMedicareFields = [
   {
-    field: "medicareNumber",
-    title: "Medicare Number",
-    type: "text",
-    placeholder: "Enter Medicare number",
-    className: "col-12 col-md-4",
+    field: 'medicareNumber',
+    title: 'Medicare Number',
+    type: 'text',
+    className: 'col-md-4',
   },
-
   {
-    field: "medicareIrn",
-    title: "Medicare IRN",
-    type: "text",
-    placeholder: "Enter Medicare IRN",
-    className: "col-12 col-md-4",
+    field: 'medicareIrn',
+    title: 'Medicare IRN',
+    type: 'text',
+    className: 'col-md-4',
   },
+];
 
+export const patientContactFields = [
   {
-    field: "email",
-    title: "Email",
-    type: "text",
-    placeholder: "Enter email",
-    className: "col-12 col-md-4",
+    field: 'email',
+    title: 'Email',
+    type: 'text',
+    className: 'col-md-6',
   },
-
   {
-    field: "phone",
-    title: "Phone",
-    type: "text",
-    placeholder: "Enter phone number",
-    className: "col-12 col-md-4",
+    field: 'phone',
+    title: 'Phone',
+    type: 'text',
+    className: 'col-md-6',
   },
+];
 
+export const patientEmergencyFields = [
   {
-    field: "emergencyContactName",
-    title: "Emergency Contact Name",
-    type: "text",
-    placeholder: "Enter contact name",
-    className: "col-12 col-md-4",
+    field: 'emergencyContactName',
+    title: 'Emergency Contact Name',
+    type: 'text',
+    className: 'col-md-6',
   },
-
   {
-    field: "emergencyContactPhone",
-    title: "Emergency Contact Phone",
-    type: "text",
-    placeholder: "Enter contact phone",
-    className: "col-12 col-md-4",
+    field: 'emergencyContactPhone',
+    title: 'Emergency Contact Phone',
+    type: 'text',
+    className: 'col-md-6',
   },
 ];

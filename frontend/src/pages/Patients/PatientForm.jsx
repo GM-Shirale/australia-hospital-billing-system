@@ -1,60 +1,38 @@
-import React, { useEffect } from "react";
-import { useForm } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
-import { useDispatch, useSelector } from "react-redux";
-import { useNavigate, useParams } from "react-router-dom";
+// frontend/src/pages/patients/PatientForm.jsx
 
-import FormBox from "../../components/common/forms/FormBox";
+import React, { useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
+import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate, useParams } from 'react-router-dom';
 
+import FormBox from '../../components/common/forms/FormBox';
 import {
   createPatient,
   updatePatient,
   fetchPatientById,
   clearMessages,
-} from "../../store/patientSlice";
+} from '../../store/patientSlice';
 
-import { patientFields } from "../../data/patientFormData";
-import { patientValidationSchema } from "./patientValidation";
+import {
+  patientNameFields,
+  patientDemographicFields,
+  patientMedicareFields,
+  patientContactFields,
+  patientEmergencyFields,
+} from '../../data/patientFormData';
 
-// ─────────────────────────────────────────────
-// Default Values
-// ─────────────────────────────────────────────
-
-const defaultValues = {
-  firstName: "",
-  middleName: "",
-  lastName: "",
-  dateOfBirth: "",
-  gender: "",
-  medicareNumber: "",
-  medicareIrn: "",
-  email: "",
-  phone: "",
-  emergencyContactName: "",
-  emergencyContactPhone: "",
-};
-
-// ─────────────────────────────────────────────
-// Component
-// ─────────────────────────────────────────────
+import { patientValidationSchema, patientDefaultValues } from './patientValidation';
 
 export default function PatientForm() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
   const { patientId } = useParams();
   const isEdit = Boolean(patientId);
 
-  const {
-    selectedPatient,
-    formLoading,
-    error,
-    successMessage,
-  } = useSelector((state) => state.patient);
-
-  // ───────────────────────────────────────────
-  // React Hook Form
-  // ───────────────────────────────────────────
+  const { selectedPatient, formLoading, error, successMessage } = useSelector(
+    (state) => state.patient
+  );
 
   const {
     register,
@@ -65,23 +43,17 @@ export default function PatientForm() {
     formState: { errors },
   } = useForm({
     resolver: yupResolver(patientValidationSchema),
-    defaultValues,
+    defaultValues: patientDefaultValues,
   });
 
-  // ───────────────────────────────────────────
-  // Fetch patient for edit
-  // ───────────────────────────────────────────
-
+  // ── On edit mode: load the patient data
   useEffect(() => {
     if (isEdit) {
       dispatch(fetchPatientById(patientId));
     }
   }, [isEdit, patientId, dispatch]);
 
-  // ───────────────────────────────────────────
-  // Populate form when patient is loaded
-  // ───────────────────────────────────────────
-
+  // ── Populate form once the patient is loaded
   useEffect(() => {
     if (
       isEdit &&
@@ -89,201 +61,175 @@ export default function PatientForm() {
       String(selectedPatient.patientId) === String(patientId)
     ) {
       reset({
-        firstName: selectedPatient.firstName || "",
-        middleName: selectedPatient.middleName || "",
-        lastName: selectedPatient.lastName || "",
-        dateOfBirth: selectedPatient.dateOfBirth || "",
-        gender: selectedPatient.gender || "",
-        medicareNumber: selectedPatient.medicareNumber || "",
-        medicareIrn: selectedPatient.medicareIrn || "",
-        email: selectedPatient.email || "",
-        phone: selectedPatient.phone || "",
-        emergencyContactName:
-          selectedPatient.emergencyContactName || "",
-        emergencyContactPhone:
-          selectedPatient.emergencyContactPhone || "",
+        firstName:             selectedPatient.firstName             || '',
+        middleName:            selectedPatient.middleName            || '',
+        lastName:              selectedPatient.lastName              || '',
+        dateOfBirth:           selectedPatient.dateOfBirth           || '',
+        gender:                selectedPatient.gender                || '',
+        medicareNumber:        selectedPatient.medicareNumber        || '',
+        medicareIrn:           selectedPatient.medicareIrn           || '',
+        email:                 selectedPatient.email                 || '',
+        phone:                 selectedPatient.phone                 || '',
+        emergencyContactName:  selectedPatient.emergencyContactName  || '',
+        emergencyContactPhone: selectedPatient.emergencyContactPhone || '',
       });
     }
   }, [selectedPatient, isEdit, patientId, reset]);
 
-  // ───────────────────────────────────────────
-  // Success redirect
-  // ───────────────────────────────────────────
-
+  // ── Redirect to list after a successful save
   useEffect(() => {
     if (successMessage) {
       const timer = setTimeout(() => {
         dispatch(clearMessages());
-        navigate("/patients");
+        navigate('/patients');
       }, 1200);
-
       return () => clearTimeout(timer);
     }
   }, [successMessage, dispatch, navigate]);
 
-  // ───────────────────────────────────────────
-  // Cleanup
-  // ───────────────────────────────────────────
-
+  // ── Clear messages on unmount
   useEffect(() => {
-    return () => {
-      dispatch(clearMessages());
-    };
+    return () => { dispatch(clearMessages()); };
   }, [dispatch]);
 
-  // ───────────────────────────────────────────
-  // Submit
-  // ───────────────────────────────────────────
-
+  // ── Submit handler
   const onSubmit = (formData) => {
     const payload = {
-      firstName: formData.firstName,
-      middleName: formData.middleName || null,
-      lastName: formData.lastName,
-      dateOfBirth: formData.dateOfBirth || null,
-      gender: formData.gender,
-      medicareNumber: formData.medicareNumber || null,
-      medicareIrn: formData.medicareIrn || null,
-      email: formData.email || null,
-      phone: formData.phone || null,
-      emergencyContactName:
-        formData.emergencyContactName || null,
-      emergencyContactPhone:
-        formData.emergencyContactPhone || null,
+      firstName:             formData.firstName,
+      middleName:            formData.middleName            || null,
+      lastName:              formData.lastName,
+      dateOfBirth:           formData.dateOfBirth           || null,
+      gender:                formData.gender,
+      medicareNumber:        formData.medicareNumber        || null,
+      medicareIrn:           formData.medicareIrn           || null,
+      email:                 formData.email                 || null,
+      phone:                 formData.phone                 || null,
+      emergencyContactName:  formData.emergencyContactName  || null,
+      emergencyContactPhone: formData.emergencyContactPhone || null,
     };
 
     if (isEdit) {
-      dispatch(
-        updatePatient({
-          patientId,
-          data: payload,
-        })
-      );
+      dispatch(updatePatient({ patientId, data: payload }));
     } else {
       dispatch(createPatient(payload));
     }
   };
 
+  const sharedProps = { register, watch, setValue, errors };
+
   return (
-    <div className="container-fluid py-3">
+    <div style={{ maxWidth: 860, margin: '0 auto' }}>
 
-      {/* Page Header */}
-
-      {/* <div className="d-flex align-items-center gap-2 mb-3">
+      {/* ── Page header ── */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
         <button
           type="button"
-          className="btn btn-outline-secondary btn-sm"
-          onClick={() => navigate("/patients")}
+          onClick={() => navigate('/patients')}
+          style={{
+            background: 'none', border: '1px solid #cbd5e1',
+            borderRadius: 8, padding: '5px 12px',
+            fontSize: 13, cursor: 'pointer', color: '#475569',
+          }}
         >
           ← Back
         </button>
-
-        <h5 className="mb-0">
-          {isEdit ? "Edit Patient" : "Register New Patient"}
+        <h5 style={{ margin: 0, fontWeight: 700, color: '#0f172a' }}>
+          {isEdit ? 'Edit Patient' : 'Register New Patient'}
         </h5>
-      </div> */}
-      {/* Page Header */}
-
-      <div className="d-flex align-items-center justify-content-between mb-4">
-        <div className="d-flex align-items-center gap-3">
-          <button
-            type="button"
-            className="btn btn-outline-secondary btn-sm"
-            onClick={() => navigate("/patients")}
-          >
-            ← Back
-          </button>
-
-          <div>
-            <h4 className="mb-1 fw-semibold">
-              {isEdit ? "Edit Patient" : "Register New Patient"}
-            </h4>
-
-            <small className="text-muted">
-              {isEdit
-                ? "Update patient information"
-                : "Enter patient information to register a new patient"}
-            </small>
-          </div>
-        </div>
       </div>
-      {/* Error */}
 
+      {/* ── Alerts ── */}
       {error && (
-        <div
-          className="alert alert-danger alert-dismissible"
-          role="alert"
-        >
-          {typeof error === "string"
-            ? error
-            : "An error occurred. Please try again."}
-
-          <button
-            type="button"
-            className="btn-close"
-            aria-label="Close"
-            onClick={() => dispatch(clearMessages())}
-          />
+        <div className="alert alert-danger alert-dismissible" role="alert" style={{ marginBottom: 16 }}>
+          {typeof error === 'string' ? error : 'An error occurred. Please try again.'}
+          <button type="button" className="btn-close" onClick={() => dispatch(clearMessages())} />
         </div>
       )}
-
-      {/* Success */}
-
       {successMessage && (
-        <div className="alert alert-success" role="alert">
+        <div className="alert alert-success" role="alert" style={{ marginBottom: 16 }}>
           {successMessage}
         </div>
       )}
 
-      {/* Form */}
+      <form onSubmit={handleSubmit(onSubmit)} noValidate>
 
-      <form
-        onSubmit={handleSubmit(onSubmit)}
-        noValidate
-      >
-        <FormBox
-          options={patientFields}
-          register={register}
-          watch={watch}
-          setValue={setValue}
-          errors={errors}
-        />
+        <Section title="Patient Name">
+          <FormBox options={patientNameFields} {...sharedProps} />
+        </Section>
 
-        {/* Actions */}
+        <Section title="Demographics">
+          <FormBox options={patientDemographicFields} {...sharedProps} />
+        </Section>
 
-        <div className="d-flex justify-content-end gap-2 mt-3 mb-4">
+        <Section title="Medicare Details">
+          <FormBox options={patientMedicareFields} {...sharedProps} />
+        </Section>
 
+        <Section title="Contact Information">
+          <FormBox options={patientContactFields} {...sharedProps} />
+        </Section>
+
+        <Section title="Emergency Contact" color="#475569">
+          <FormBox options={patientEmergencyFields} {...sharedProps} />
+        </Section>
+
+        {/* ── Actions ── */}
+        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, paddingBottom: 32 }}>
           <button
             type="button"
-            className="btn btn-outline-secondary btn-sm px-3"
-            onClick={() => navigate("/patients")}
+            onClick={() => navigate('/patients')}
             disabled={formLoading}
+            style={{
+              padding: '8px 20px', borderRadius: 8,
+              border: '1px solid #cbd5e1', background: '#fff',
+              cursor: 'pointer', fontSize: 14, color: '#475569',
+            }}
           >
             Cancel
           </button>
-
           <button
             type="submit"
-            className="btn btn-primary btn-sm px-4"
             disabled={formLoading}
+            style={{
+              padding: '8px 28px', borderRadius: 8, border: 'none',
+              background: '#2563eb', color: '#fff',
+              cursor: formLoading ? 'not-allowed' : 'pointer',
+              fontSize: 14, fontWeight: 600, opacity: formLoading ? 0.7 : 1,
+            }}
           >
             {formLoading ? (
               <>
-                <span
-                  className="spinner-border spinner-border-sm me-2"
-                  role="status"
-                  aria-hidden="true"
-                />
-
-                {isEdit ? "Updating..." : "Registering..."}
+                <span className="spinner-border spinner-border-sm me-2" role="status" />
+                {isEdit ? 'Updating...' : 'Registering...'}
               </>
-            ) : (
-              isEdit ? "Update Patient" : "Register Patient"
-            )}
+            ) : isEdit ? 'Update Patient' : 'Register Patient'}
           </button>
-
         </div>
       </form>
+    </div>
+  );
+}
+
+// ── Section card helper ───────────────────────────────
+function Section({ title, color = '#2563eb', children }) {
+  return (
+    <div style={{
+      background: '#fff',
+      border: '1px solid #e2e8f0',
+      borderRadius: 10,
+      marginBottom: 20,
+      boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+      overflow: 'hidden',
+    }}>
+      <div style={{
+        background: color, color: '#fff',
+        padding: '10px 20px', fontWeight: 600, fontSize: 14,
+      }}>
+        {title}
+      </div>
+      <div style={{ padding: '20px' }}>
+        {children}
+      </div>
     </div>
   );
 }
