@@ -1,0 +1,29 @@
+:root {
+  --primary-color: #2563eb;
+  --primary-dark: #1d4ed8;
+
+  --secondary-color: #0f766e;
+
+  --background-color: #f8fafc;
+  --card-color: #ffffff;
+
+  --border-color: #cbd5e1;
+
+  --text-color: #1e293b;
+  --muted-color: #64748b;
+
+  --success-color: #16a34a;
+  --warning-color: #d97706;
+  --danger-color: #dc2626;
+}
+
+body {
+  margin: 0;
+  background-color: var(--background-color);
+  color: var(--text-color);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}

@@ -23,6 +23,7 @@ public class SecurityConfig {
             HttpSecurity http) throws Exception {
 
         http
+                .cors(cors -> {})
                 // Disable CSRF for REST APIs
                 .csrf(AbstractHttpConfigurer::disable)
 
