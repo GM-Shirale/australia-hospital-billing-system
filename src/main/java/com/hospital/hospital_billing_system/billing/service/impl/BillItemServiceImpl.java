@@ -52,6 +52,9 @@ public class BillItemServiceImpl implements BillItemService {
                 bill.getTotalAmount().add(totalAmount)
         );
 
+        // Recalculate patient amount
+        recalculatePatientAmount(bill);
+
         billRepository.save(bill);
 
         BillItem billItem = BillItem.builder()
@@ -143,6 +146,9 @@ public class BillItemServiceImpl implements BillItemService {
                         .add(newTotalAmount)
         );
 
+        // Recalculate patient amount
+        recalculatePatientAmount(bill);
+
         billRepository.save(bill);
 
         billItem.setItemName(request.getItemName());
@@ -180,11 +186,29 @@ public class BillItemServiceImpl implements BillItemService {
                         .subtract(billItem.getTotalAmount())
         );
 
+        // Recalculate patient amount
+        recalculatePatientAmount(bill);
+
         billRepository.save(bill);
 
         billItemRepository.delete(billItem);
 
         log.info("Bill item deleted successfully with id: {}", billItemId);
+    }
+
+    private void recalculatePatientAmount(Bill bill) {
+
+        BigDecimal patientAmount = bill.getTotalAmount()
+                .subtract(bill.getInsuranceAmount())
+                .subtract(bill.getMedicareAmount());
+
+        if (patientAmount.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalStateException(
+                    "Insurance and Medicare amount cannot exceed total bill amount"
+            );
+        }
+
+        bill.setPatientAmount(patientAmount);
     }
 
     private void validateRequest(BillItemRequest request) {
