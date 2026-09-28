@@ -60,8 +60,8 @@ public class PatientRequest {
 
     // phone number - exactly 10 digits
     @Pattern(
-            regexp = "^\\d{10}$",
-            message = "Phone number must contain exactly 10 digits"
+            regexp = "^04\\d{8}$",
+            message = "Australian mobile number must start with 04 and contain exactly 10 digits"
     )
     private String phone;
 
@@ -71,8 +71,8 @@ public class PatientRequest {
 
     // emergency contact phone - exactly 10 digits
     @Pattern(
-            regexp = "^\\d{10}$",
-            message = "Emergency contact phone must contain exactly 10 digits"
+            regexp = "^04\\d{8}$",
+            message = "Australian mobile number must start with 04 and contain exactly 10 digits"
     )
     private String emergencyContactPhone;
 }
