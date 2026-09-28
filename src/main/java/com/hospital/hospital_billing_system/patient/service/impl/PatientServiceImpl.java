@@ -31,33 +31,8 @@ public class PatientServiceImpl implements PatientService {
 
         log.info("Creating new patient");
 
-        // check duplicate email
-        if (patientRepository.existsByEmail(request.getEmail())) {
-            log.warn("Duplicate patient email found");
 
-            throw new DuplicateResourceException(
-                    "Patient with email already exists: " + request.getEmail()
-            );
-        }
 
-        // check duplicate phone
-        if (patientRepository.existsByPhone(request.getPhone())) {
-            log.warn("Duplicate patient phone number found");
-
-            throw new DuplicateResourceException(
-                    "Patient with phone number already exists: " + request.getPhone()
-            );
-        }
-
-        // check duplicate Medicare number
-        if (patientRepository.existsByMedicareNumber(request.getMedicareNumber())) {
-            log.warn("Duplicate patient Medicare number found");
-
-            throw new DuplicateResourceException(
-                    "Patient with Medicare number already exists: "
-                            + request.getMedicareNumber()
-            );
-        }
 
         // create patient using builder
         Patient patient = Patient.builder()
